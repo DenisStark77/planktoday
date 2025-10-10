@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PLANK +1% — Планка сегодня</title>
+  <meta name="description" content="Ежедневная практика планки с ростом +1% в день. Маленький шаг. Каждый день. Экспоненциальный результат." />
+  <meta property="og:title" content="PLANK +1% — Планка сегодня" />
+  <meta property="og:description" content="Ежедневная практика планки с ростом +1% в день. Маленький шаг. Каждый день. Экспоненциальный результат." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/og-image.png" />
+  <meta name="theme-color" content="#000000" />
+
+  <style>
+    :root{
+      --bg:#0a0a0a;       /* почти чёрный */
+      --fg:#f2f2f2;       /* почти белый */
+      --muted:#9b9b9b;    /* приглушённый серый */
+      --accent:#ffffff;   /* чисто белый для акцентов */
+      --maxw:1100px;
+      --radius:20px;
+      --gap:28px;
+    }
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; background:var(--bg); color:var(--fg); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      line-height:1.5; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    }
+    a{color:var(--fg); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{max-width:var(--maxw); margin-inline:auto; padding:24px}
+    .grid{display:grid; gap:var(--gap)}
+    .grid-2{grid-template-columns:1fr}
+    @media (min-width: 960px){.grid-2{grid-template-columns:1.2fr .8fr}}
+
+    /* Header */
+    header{position:sticky; top:0; z-index:20; backdrop-filter:saturate(180%) blur(8px); background:rgba(10,10,10,.7); border-bottom:1px solid #1a1a1a}
+    .nav{display:flex; align-items:center; justify-content:space-between}
+    .brand{font-weight:800; letter-spacing:.04em; font-size:18px}
+    .pill{display:inline-flex; align-items:center; gap:.6em; border:1px solid #2a2a2a; padding:10px 14px; border-radius:999px}
+    .pill small{color:var(--muted)}
+    nav a{opacity:.9; margin-left:18px}
+    nav a:hover{opacity:1}
+
+    /* Hero */
+    .hero{padding:64px 0 40px; border-bottom:1px solid #1a1a1a}
+    .kicker{color:var(--muted); font-weight:600; letter-spacing:.2em; text-transform:uppercase}
+    .title{font-size:clamp(40px,6vw,86px); line-height:1.05; margin:.2em 0 .3em; font-weight:900; letter-spacing:-.01em}
+    .subtitle{font-size:clamp(18px,2.2vw,22px); color:#d7d7d7; max-width:48ch}
+
+    .cta-row{display:flex; flex-wrap:wrap; gap:14px; margin-top:26px}
+    .btn{display:inline-flex; align-items:center; justify-content:center; border:1px solid #f2f2f2; color:#0a0a0a; background:var(--accent); padding:14px 18px; border-radius:14px; font-weight:800; letter-spacing:.02em}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-ghost{background:transparent; color:var(--fg); border-color:#2a2a2a}
+
+    .hero-card{
+      border:1px solid #1f1f1f; border-radius:var(--radius); padding:22px; background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0) 60%);
+    }
+    .stat{font-size:42px; font-weight:900}
+    .muted{color:var(--muted)}
+
+    /* Sections */
+    section{padding:64px 0; border-bottom:1px solid #121212}
+    h2{font-size:clamp(28px,3.2vw,44px); line-height:1.1; margin:0 0 14px; font-weight:900}
+    h3{font-size:clamp(20px,2vw,26px); margin:10px 0 6px; font-weight:800}
+    p{margin:0 0 12px}
+    .card{
+      border:1px solid #1f1f1f; border-radius:var(--radius); padding:20px; background:radial-gradient(80% 120% at 10% 0%, rgba(255,255,255,.03), rgba(255,255,255,0));
+    }
+    .list-tight{margin:0; padding-left:18px}
+    .list-tight li{margin:.25em 0}
+
+    /* Table */
+    table{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums}
+    th, td{border-bottom:1px solid #1f1f1f; padding:10px 8px; text-align:left}
+    th{color:#bfbfbf; font-weight:700}
+    tr:hover td{background:#0e0e0e}
+
+    /* Quote */
+    .quote{font-size:20px; font-weight:700; border-left:4px solid var(--fg); padding:14px 16px; background:#0d0d0d; border-radius:12px}
+
+    /* FAQ */
+    details{border:1px solid #1f1f1f; border-radius:14px; padding:14px 16px; background:#0d0d0d}
+    details+details{margin-top:10px}
+    summary{cursor:pointer; font-weight:800}
+
+    /* Footer */
+    footer{padding:40px 0; color:#bdbdbd}
+    .foot-grid{display:grid; grid-template-columns:1fr; gap:18px}
+    @media(min-width: 760px){.foot-grid{grid-template-columns: 1.1fr .9fr .9fr}}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+
+    /* Badge */
+    .badge{display:inline-flex; align-items:center; gap:8px; border:1px dashed #2a2a2a; padding:8px 10px; border-radius:999px; color:#bdbdbd}
+
+    /* Utilities */
+    .center{display:flex; align-items:center; justify-content:center}
+    .mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}
+    .mb-0{margin-bottom:0}.mb-8{margin-bottom:8px}.mb-24{margin-bottom:24px}
+    .opacity-70{opacity:.7}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container nav">
+      <div class="brand">PLANK <span class="opacity-70">+1%</span></div>
+      <nav>
+        <a href="#about">Суть</a>
+        <a href="#stages">Этапы</a>
+        <a href="#form">Форма</a>
+        <a href="#math">Математика</a>
+        <a href="#community">Сообщество</a>
+        <a href="#donate">Донат</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container grid grid-2">
+      <div>
+        <div class="kicker">Каждый день</div>
+        <h1 class="title">Маленький шаг. <br/>Экспоненциальный результат.</h1>
+        <p class="subtitle">Ежедневная планка и +1% ко времени в день. Начни с того, что доступно прямо сейчас — 10 секунд, 30 секунд, 1 минута. Главное — повторять.</p>
+        <div class="cta-row">
+          <a class="btn" href="#start">Начать сегодня</a>
+          <a class="btn btn-ghost" href="#how">Как это работает</a>
+        </div>
+        <div class="mt-16 badge mono">
+          <span>⏱️ Удвоение каждые ~2.5 месяца</span>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="quote">«Ты не должен быть сильным, чтобы начать. Но если начнёшь — станешь сильным.»</div>
+        <div class="grid mt-16" style="grid-template-columns:repeat(3,1fr); gap:12px">
+          <div class="card center" style="flex-direction:column">
+            <div class="stat" id="statStart">20с</div>
+            <div class="muted">Старт</div>
+          </div>
+          <div class="card center" style="flex-direction:column">
+            <div class="stat" id="stat70">40с</div>
+            <div class="muted">+70 дней</div>
+          </div>
+          <div class="card center" style="flex-direction:column">
+            <div class="stat" id="stat365">≈12м</div>
+            <div class="muted">+365 дней</div>
+          </div>
+        </div>
+        <p class="muted mt-12 mono">*Расчёт по формуле t×1.01^n</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="container grid grid-2">
+      <div>
+        <h2>Методология «Планка + 1%»</h2>
+        <p><strong>Краткая суть:</strong> ежедневно стой в планке, увеличивая время на <strong>1% в день</strong>. Начни с доступной тебе длительности — 10–15 секунд достаточно, чтобы начать.</p>
+        <h3>Ценность</h3>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px">
+          <div class="card"><strong>Воля и намерение</strong><br><span class="muted">способность завершать начатое</span></div>
+          <div class="card"><strong>Самодисциплина</strong><br><span class="muted">устойчивость к колебаниям</span></div>
+          <div class="card"><strong>Мышление роста</strong><br><span class="muted">доступ к экспоненциальному росту</span></div>
+          <div class="card"><strong>Спонтанность и мотивация</strong><br><span class="muted">внутренний огонь</span></div>
+          <div class="card"><strong>Вера в результат</strong><br><span class="muted">личный опыт «невозможного»</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 id="how">Как начать</h3>
+        <ol class="list-tight">
+          <li>Встань в планку и зафиксируй стартовое время.</li>
+          <li>Каждый день добавляй +1% к вчерашнему времени.</li>
+          <li>Не пропускай. Регулярность важнее идеала.</li>
+          <li>Освой правильную форму, чтобы развиваться безопасно.</li>
+        </ol>
+        <div class="mt-16">
+          <a class="btn" href="#stages">К этапам практики</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stages -->
+  <section id="stages">
+    <div class="container grid grid-2">
+      <div>
+        <h2>Этапы практики</h2>
+        <h3 id="start">Начало</h3>
+        <p>Первое действие — просто встать в планку и засечь время. Это твоя точка отсчёта. Ограничений нет.</p>
+        <h3>Первые дни</h3>
+        <p>Цель — войти в ритм. Найди время, место, поддержку. Несколько дней форма не критична — важно закрепить привычку.</p>
+        <h3>Изначальное наращивание</h3>
+        <p>Рост по 1% в день — как сложные проценты. Сначала прибавка незаметна, потом — ускоряется. <span class="mono">20с → 21с</span> примерно через 5 дней; <span class="mono">30с → 31с</span> — через 3–4 дня.</p>
+        <h3>Удвоения (2×)</h3>
+        <p>Любой старт удваивается примерно за 70 дней: <span class="mono">1.01^70 ≈ 2.007</span>. 20с → 40с, 1м → 2м, 5м → 10м.</p>
+      </div>
+      <div class="card">
+        <h3>Калькулятор +1%</h3>
+        <label>Стартовое время (сек):<br>
+          <input id="startSecs" type="number" min="1" value="20" class="mono" style="width:100%; padding:10px; border-radius:10px; background:#0b0b0b; color:var(--fg); border:1px solid #1f1f1f">
+        </label>
+        <div class="grid mt-12" style="grid-template-columns:repeat(2,1fr); gap:10px">
+          <button class="btn" onclick="recalc()">Рассчитать</button>
+          <a class="btn btn-ghost" href="#math">Смотреть математику</a>
+        </div>
+        <div class="mt-16 mono" id="calcOut"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Form -->
+  <section id="form">
+    <div class="container grid grid-2">
+      <div>
+        <h2>Форма планки</h2>
+        <p>Правильная форма — ключ к развитию и безопасности. Допустимо первые дни “криво”, но регулярно так делать нельзя.</p>
+        <ul class="list-tight">
+          <li>Без прогиба в пояснице — подтяни копчик, лобок — к лбу.</li>
+          <li>Лопатки тянем вверх, плечами толкаем пол, не проваливаемся.</li>
+          <li>Голова — в линию корпуса, взгляд в пол.</li>
+        </ul>
+        <p class="muted">Если что-то болит — остановись, проверь форму, при необходимости проконсультируйся со специалистом.</p>
+      </div>
+      <div class="card">
+        <h3>Сигналы тела</h3>
+        <p><strong>Устал — это нормально.</strong> Это признак развития.<br>
+        <strong>Ум «играет»</strong> — тренируй волю и намерение.<br>
+        <strong>Боль / дискомфорт</strong> — скорректируй технику.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Math -->
+  <section id="math">
+    <div class="container">
+      <h2>Математика роста</h2>
+      <p>Формула простая: <span class="mono">t(n) = t(0) × 1.01^n</span>, где n — число дней практики.</p>
+      <div class="mt-16 card">
+        <div class="grid" style="grid-template-columns:1fr .9fr; gap:12px">
+          <div>
+            <h3>Пример на год</h3>
+            <p>При старте с 20 секунд через 365 дней получится около <span class="mono">20×1.01^365 ≈ 12 минут</span>.</p>
+            <p>Через 70 дней — удвоение. Через 140 — четырёхкратный рост и т. д.</p>
+          </div>
+          <div>
+            <table id="growthTable">
+              <thead><tr><th>День</th><th>Время</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <p class="muted mono mt-8">* Отображаются ключевые вехи: 0, 30, 70, 140, 365</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Community -->
+  <section id="community">
+    <div class="container grid grid-2">
+      <div>
+        <h2>Социальное взаимодействие</h2>
+        <p>Те, кто прошли путь +1%, меняются изнутри: образ жизни, ценности, возможности. Сообщество поддерживает на каждом этапе.</p>
+        <p>Форматы: чаты, взаимная поддержка, примеры, технические советы, наставничество.</p>
+        <div class="cta-row mt-16">
+          <a class="btn" href="#" id="joinChatBtn">Вступить в чат</a>
+          <a class="btn btn-ghost" href="#guides">Для проводников</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3 id="guides">Как помочь другим</h3>
+        <p>Практика свободна и доступна всем. Если проводишь занятия, ведёшь чаты или курсы — укажи ссылку на методологию <span class="mono">plank.today</span>.</p>
+        <p>Получаешь пользу или доход как проводник — поддержи проект донатом.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Donate / Manifest -->
+  <section id="donate">
+    <div class="container grid grid-2">
+      <div>
+        <h2>Благодарность</h2>
+        <p>Методика свободна. Нравится и помогает — поддержи развитие.</p>
+        <div class="cta-row mt-16">
+          <a class="btn" href="#" id="donateBtn">Донат</a>
+          <a class="btn btn-ghost" href="#footer">Контакты</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Манифест</h3>
+        <p class="quote">Мы — не планктон. Мы — те, кто растёт. Маленькими шагами. Каждый день. Планка +1% — путь воли, веры и тела.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section>
+    <div class="container">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Можно ли пропускать дни?</summary>
+        <p>Лучше — нет. Регулярность важнее скорости. Если пропустил — продолжай с последнего комфортного значения, без резких скачков.</p>
+      </details>
+      <details>
+        <summary>Когда остановиться?</summary>
+        <p>Это личный выбор. Проверь: это истинное «достаточно» или привычка избегать сложностей?</p>
+      </details>
+      <details>
+        <summary>Болит спина/шея — что делать?</summary>
+        <p>Проверь технику. Снизь время, укрепляй мышцы кора. При необходимости обратись к специалисту.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <div class="container foot-grid">
+      <div>
+        <div class="brand">PLANK +1%</div>
+        <p class="muted mt-12">Свободная практика развития. Без paywall. Поддерживается сообществом.</p>
+        <p class="mono mt-12">© 2025 plank.today</p>
+      </div>
+      <div>
+        <h3>Контакты</h3>
+        <p>Email: <a href="mailto:hello@plank.today">hello@plank.today</a></p>
+        <p>Telegram: <a href="#">@plank_today</a></p>
+        <p>Instagram: <a href="#">@plank.today</a></p>
+      </div>
+      <div>
+        <h3>Ссылки</h3>
+        <p><a href="#community">Сообщество</a></p>
+        <p><a href="#donate">Донат</a></p>
+        <p><a href="#math">Математика</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Format seconds → human-friendly string
+    function fmt(sec){
+      sec = Math.round(sec);
+      if(sec < 60) return sec + 'с';
+      const m = Math.floor(sec/60); const s = sec%60;
+      if(m < 10) return s ? (m + 'м ' + s + 'с') : (m + 'м');
+      return m + 'м';
+    }
+
+    // Fill hero stats & table based on starting secs
+    function fillStats(start){
+      const by = (n) => start * Math.pow(1.01, n);
+      document.getElementById('statStart').textContent = fmt(start);
+      document.getElementById('stat70').textContent   = fmt(by(70));
+      document.getElementById('stat365').textContent  = fmt(by(365));
+
+      const tBody = document.querySelector('#growthTable tbody');
+      tBody.innerHTML = '';
+      const milestones = [0,30,70,140,365];
+      milestones.forEach(d => {
+        const tr = document.createElement('tr');
+        const td1 = document.createElement('td');
+        const td2 = document.createElement('td');
+        td1.textContent = d + ' день';
+        td2.textContent = fmt(by(d));
+        tr.appendChild(td1); tr.appendChild(td2); tBody.appendChild(tr);
+      });
+      // Calc block output
+      const out = document.getElementById('calcOut');
+      out.innerHTML = `Через <b>70</b> дней: <span class="mono">${fmt(by(70))}</span><br>`+
+                      `Через <b>140</b> дней: <span class="mono">${fmt(by(140))}</span><br>`+
+                      `Через <b>365</b> дней: <span class="mono">${fmt(by(365))}</span>`;
+    }
+
+    function recalc(){
+      const n = Math.max(1, Number(document.getElementById('startSecs').value || 20));
+      fillStats(n);
+    }
+
+    // Initial
+    fillStats(20);
+
+    // Placeholder links
+    document.getElementById('donateBtn').addEventListener('click', (e)=>{
+      e.preventDefault();
+      alert('Подключите ссылку на Stripe/Boosty/Donatpay/ЮMoney в #donateBtn');
+    });
+    document.getElementById('joinChatBtn').addEventListener('click', (e)=>{
+      e.preventDefault();
+      alert('Замените # у кнопки чата на реальную ссылку Telegram/Discord.');
+    });
+  </script>
+</body>
+</html>
