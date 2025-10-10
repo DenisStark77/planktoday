@@ -152,15 +152,15 @@
         <div class="quote">«Ты не должен быть сильным, чтобы начать. Но если начнёшь — станешь сильным.»</div>
         <div class="grid3 mt-16">
           <div class="card center" style="flex-direction:column">
-            <div class="stat" id="statStart">20 сек</div>
+            <div class="stat" id="_statStart">20 сек</div>
             <div class="muted">Старт</div>
           </div>
           <div class="card center" style="flex-direction:column">
-            <div class="stat" id="stat70">40 сек</div>
+            <div class="stat" id="_stat70">40 сек</div>
             <div class="muted">+70 дней</div>
           </div>
           <div class="card center" style="flex-direction:column">
-            <div class="stat" id="stat365">12 мин</div>
+            <div class="stat" id="_stat365">12 мин</div>
             <div class="muted">+365 дней</div>
           </div>
         </div>
@@ -356,10 +356,10 @@
     // Format seconds → human-friendly string
     function fmt(sec){
       sec = Math.round(sec);
-      if(sec < 60) return sec + 'с';
+      if(sec < 60) return sec + 'сек';
       const m = Math.floor(sec/60); const s = sec%60;
-      if(m < 10) return s ? (m + 'м ' + s + 'с') : (m + 'м');
-      return m + 'м';
+      if(m < 10) return s ? (m + 'мин' + s + 'сек') : (m + 'мин');
+      return m + 'мин';
     }
 
     // Fill hero stats & table based on starting secs
