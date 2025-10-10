@@ -12,109 +12,64 @@
   <meta name="theme-color" content="#000000" />
 
   <style>
-    :root{
-      --bg:#0a0a0a;       /* почти чёрный */
-      --fg:#f2f2f2;       /* почти белый */
-      --muted:#9b9b9b;    /* приглушённый серый */
-      --accent:#ffffff;   /* чисто белый для акцентов */
-      --maxw:1100px;
-      --radius:20px;
-      --gap:28px;
-    }
+    :root{--bg:#0a0a0a;--fg:#f2f2f2;--muted:#9b9b9b;--accent:#ffffff;--maxw:1100px;--radius:20px;--gap:28px}
+    *,*::before,*::after{box-sizing:border-box}
+    img,video,svg{max-width:100%;height:auto}
     html{scroll-behavior:smooth}
-    body{
-      margin:0; background:var(--bg); color:var(--fg); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-      line-height:1.5; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-    }
-    a{color:var(--fg); text-decoration:none}
+    body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+    a{color:var(--fg);text-decoration:none}
     a:hover{text-decoration:underline}
-    .container{max-width:var(--maxw); margin-inline:auto; padding:24px}
-    .grid{display:grid; gap:var(--gap)}
+    .container{max-width:var(--maxw);margin-inline:auto;padding:24px}
+    .grid{display:grid;gap:var(--gap)}
     .grid-2{grid-template-columns:1fr}
-    @media (min-width: 960px){.grid-2{grid-template-columns:1.2fr .8fr}}
-
-    /* Header */
-    header{position:sticky; top:0; z-index:20; backdrop-filter:saturate(180%) blur(8px); background:rgba(10,10,10,.7); border-bottom:1px solid #1a1a1a}
-    .nav{display:flex; align-items:center; justify-content:space-between}
-    .brand{font-weight:800; letter-spacing:.04em; font-size:18px}
-    .pill{display:inline-flex; align-items:center; gap:.6em; border:1px solid #2a2a2a; padding:10px 14px; border-radius:999px}
-    .pill small{color:var(--muted)}
-    nav a{opacity:.9; margin-left:18px}
+    @media(min-width:960px){.grid-2{grid-template-columns:1.2fr .8fr}}
+    header{position:sticky;top:0;z-index:20;backdrop-filter:saturate(180%) blur(8px);background:rgba(10,10,10,.7);border-bottom:1px solid #1a1a1a}
+    .nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+    .brand{font-weight:800;letter-spacing:.04em;font-size:18px}
+    nav a{opacity:.9;margin-left:18px}
     nav a:hover{opacity:1}
-
-    /* Hero */
-    .hero{padding:64px 0 40px; border-bottom:1px solid #1a1a1a}
-    .kicker{color:var(--muted); font-weight:600; letter-spacing:.2em; text-transform:uppercase}
-    .title{font-size:clamp(40px,6vw,86px); line-height:1.05; margin:.2em 0 .3em; font-weight:900; letter-spacing:-.01em}
-    .subtitle{font-size:clamp(18px,2.2vw,22px); color:#d7d7d7; max-width:48ch}
-
-    .cta-row{display:flex; flex-wrap:wrap; gap:14px; margin-top:26px}
-    .btn{display:inline-flex; align-items:center; justify-content:center; border:1px solid #f2f2f2; color:#0a0a0a; background:var(--accent); padding:14px 18px; border-radius:14px; font-weight:800; letter-spacing:.02em}
+    .lang{display:flex;gap:8px;align-items:center}
+    .lang select{background:#0e0e0e;color:var(--fg);border:1px solid #2a2a2a;border-radius:10px;padding:8px}
+    .hero{padding:64px 0 40px;border-bottom:1px solid #1a1a1a}
+    .kicker{color:var(--muted);font-weight:600;letter-spacing:.2em;text-transform:uppercase}
+    .title{font-size:clamp(40px,6vw,86px);line-height:1.05;margin:.2em 0 .3em;font-weight:900;letter-spacing:-.01em}
+    .subtitle{font-size:clamp(18px,2.2vw,22px);color:#d7d7d7;max-width:52ch}
+    .cta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:26px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid #f2f2f2;color:#0a0a0a;background:var(--accent);padding:14px 18px;border-radius:14px;font-weight:800;letter-spacing:.02em}
     .btn:hover{transform:translateY(-1px)}
-    .btn-ghost{background:transparent; color:var(--fg); border-color:#2a2a2a}
-
-    .hero-card{
-      border:1px solid #1f1f1f; border-radius:var(--radius); padding:22px; background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0) 60%);
-    }
-    .stat{font-size:42px; font-weight:900}
+    .btn-ghost{background:transparent;color:var(--fg);border-color:#2a2a2a}
+    .hero-card{border:1px solid #1f1f1f;border-radius:var(--radius);padding:22px;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0) 60%)}
+    .stat{font-size:42px;font-weight:900}
     .muted{color:var(--muted)}
-
-    /* Sections */
-    section{padding:64px 0; border-bottom:1px solid #121212}
-    h2{font-size:clamp(28px,3.2vw,44px); line-height:1.1; margin:0 0 14px; font-weight:900}
-    h3{font-size:clamp(20px,2vw,26px); margin:10px 0 6px; font-weight:800}
+    section{padding:64px 0;border-bottom:1px solid #121212}
+    h2{font-size:clamp(28px,3.2vw,44px);line-height:1.1;margin:0 0 14px;font-weight:900}
+    h3{font-size:clamp(20px,2vw,26px);margin:10px 0 6px;font-weight:800}
     p{margin:0 0 12px}
-    .card{
-      border:1px solid #1f1f1f; border-radius:var(--radius); padding:20px; background:radial-gradient(80% 120% at 10% 0%, rgba(255,255,255,.03), rgba(255,255,255,0));
-    }
-    .list-tight{margin:0; padding-left:18px}
+    .card{border:1px solid #1f1f1f;border-radius:var(--radius);padding:20px;background:radial-gradient(80% 120% at 10% 0%,rgba(255,255,255,.03),rgba(255,255,255,0))}
+    .list-tight{margin:0;padding-left:18px}
     .list-tight li{margin:.25em 0}
-
-    /* Table */
-    table{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums}
-    th, td{border-bottom:1px solid #1f1f1f; padding:10px 8px; text-align:left}
-    th{color:#bfbfbf; font-weight:700}
+    table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+    th,td{border-bottom:1px solid #1f1f1f;padding:10px 8px;text-align:left}
+    th{color:#bfbfbf;font-weight:700}
     tr:hover td{background:#0e0e0e}
-
-    /* Quote */
-    .quote{font-size:20px; font-weight:700; border-left:4px solid var(--fg); padding:14px 16px; background:#0d0d0d; border-radius:12px}
-
-    /* FAQ */
-    details{border:1px solid #1f1f1f; border-radius:14px; padding:14px 16px; background:#0d0d0d}
+    .quote{font-size:20px;font-weight:700;border-left:4px solid var(--fg);padding:14px 16px;background:#0d0d0d;border-radius:12px}
+    details{border:1px solid #1f1f1f;border-radius:14px;padding:14px 16px;background:#0d0d0d}
     details+details{margin-top:10px}
-    summary{cursor:pointer; font-weight:800}
-
-    /* Footer */
-    footer{padding:40px 0; color:#bdbdbd}
-    .foot-grid{display:grid; grid-template-columns:1fr; gap:18px}
-    @media(min-width: 760px){.foot-grid{grid-template-columns: 1.1fr .9fr .9fr}}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
-
-    /* Badge */
-    .badge{display:inline-flex; align-items:center; gap:8px; border:1px dashed #2a2a2a; padding:8px 10px; border-radius:999px; color:#bdbdbd}
-
-    /* Utilities */
-    .center{display:flex; align-items:center; justify-content:center}
+    summary{cursor:pointer;font-weight:800}
+    footer{padding:40px 0;color:#bdbdbd}
+    .foot-grid{display:grid;grid-template-columns:1fr;gap:18px}
+    @media(min-width:760px){.foot-grid{grid-template-columns:1.1fr .9fr .9fr}}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .badge{display:inline-flex;align-items:center;gap:8px;border:1px dashed #2a2a2a;padding:8px 10px;border-radius:999px;color:#bdbdbd}
+    .center{display:flex;align-items:center;justify-content:center}
     .mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}
     .mb-0{margin-bottom:0}.mb-8{margin-bottom:8px}.mb-24{margin-bottom:24px}
     .opacity-70{opacity:.7}
-    /* Global reset for responsive */
-    *,*::before,*::after{box-sizing:border-box}
-    img,video,svg{max-width:100%; height:auto}
-    body{overflow-x:hidden}
-    .wrap{overflow-wrap:anywhere; word-break:break-word}
-    .nav{flex-wrap:wrap; gap:10px}
-    nav{display:flex; flex-wrap:wrap}
-
-    /* Responsive helpers */
-    .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
-    @media (max-width:720px){.grid3{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}}
-    .grid-math{display:grid; grid-template-columns:1fr; gap:12px}
-    @media (min-width:960px){.grid-math{grid-template-columns:1fr .9fr}}
-
-    /* Table responsive */
-    .table-wrap{overflow-x:auto; -webkit-overflow-scrolling:touch}
-
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media(max-width:720px){.grid3{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}}
+    .grid-math{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:960px){.grid-math{grid-template-columns:1fr .9fr}}
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
   </style>
 </head>
 <body>
@@ -123,13 +78,22 @@
     <div class="container nav">
       <div class="brand">PLANK <span class="opacity-70">+1%</span></div>
       <nav>
-        <a href="#about">Суть</a>
-        <a href="#stages">Этапы</a>
-        <a href="#form">Форма</a>
-        <a href="#math">Математика</a>
-        <a href="#community">Сообщество</a>
-        <a href="#donate">Донат</a>
+        <a href="#about" data-i18n="nav.about">Суть</a>
+        <a href="#stages" data-i18n="nav.stages">Этапы</a>
+        <a href="#form" data-i18n="nav.form">Форма</a>
+        <a href="#math" data-i18n="nav.math">Математика</a>
+        <a href="#community" data-i18n="nav.community">Сообщество</a>
+        <a href="#donate" data-i18n="nav.donate">Донат</a>
       </nav>
+      <div class="lang">
+        <label class="mono" for="langSel" data-i18n="ui.language">Язык</label>
+        <select id="langSel" aria-label="Language">
+          <option value="ru">RU</option>
+          <option value="en">EN</option>
+          <option value="es">ES</option>
+          <option value="ar">AR</option>
+        </select>
+      </div>
     </div>
   </header>
 
@@ -137,34 +101,32 @@
   <section class="hero">
     <div class="container grid grid-2">
       <div>
-        <div class="kicker">Каждый день</div>
-        <h1 class="title">Маленький шаг. <br/>Экспоненциальный результат.</h1>
-        <p class="subtitle">Ежедневная планка и +1% ко времени в день. Начни с того, что доступно прямо сейчас — 10 секунд, 30 секунд, 1 минута. Главное — повторять.</p>
+        <div class="kicker" data-i18n="hero.kicker">Каждый день</div>
+        <h1 class="title" data-i18n="hero.title">Маленький шаг. <br/>Экспоненциальный результат.</h1>
+        <p class="subtitle" data-i18n="hero.subtitle">Ежедневная планка и +1% ко времени в день. Начни с того, что доступно прямо сейчас — 10 секунд, 30 секунд, 1 минута. Главное — повторять.</p>
         <div class="cta-row">
-          <a class="btn" href="#start">Начать сегодня</a>
-          <a class="btn btn-ghost" href="#how">Как это работает</a>
+          <a class="btn" href="#start" data-i18n="hero.ctaStart">Начать сегодня</a>
+          <a class="btn btn-ghost" href="#how" data-i18n="hero.ctaHow">Как это работает</a>
         </div>
-        <div class="mt-16 badge mono">
-          <span>⏱️ Удвоение каждые ~2.5 месяца</span>
-        </div>
+        <div class="mt-16 badge mono" data-i18n="hero.badge">⏱️ Удвоение каждые ~2.5 месяца</div>
       </div>
       <div class="hero-card">
-        <div class="quote">«Ты не должен быть сильным, чтобы начать. Но если начнёшь — станешь сильным.»</div>
+        <div class="quote" data-i18n="hero.quote">«Ты не должен быть сильным, чтобы начать. Но если начнёшь — станешь сильным.»</div>
         <div class="grid3 mt-16">
           <div class="card center" style="flex-direction:column">
             <div class="stat" id="statStart">00:20</div>
-            <div class="muted">Старт</div>
+            <div class="muted" data-i18n="hero.statStart">Старт</div>
           </div>
           <div class="card center" style="flex-direction:column">
             <div class="stat" id="stat70">00:40</div>
-            <div class="muted">+70 дней</div>
+            <div class="muted" data-i18n="hero.stat70">+70 дней</div>
           </div>
           <div class="card center" style="flex-direction:column">
             <div class="stat" id="stat365">12:00</div>
-            <div class="muted">+365 дней</div>
+            <div class="muted" data-i18n="hero.stat365">+365 дней</div>
           </div>
         </div>
-        <p class="muted mt-12 mono">*Расчёт по формуле t×1.01^n</p>
+        <p class="muted mt-12 mono" data-i18n="hero.note">*Расчёт по формуле t×1.01^n</p>
       </div>
     </div>
   </section>
@@ -173,27 +135,27 @@
   <section id="about">
     <div class="container grid grid-2">
       <div>
-        <h2>Методология «Планка + 1%»</h2>
-        <p><strong>Краткая суть:</strong> ежедневно стой в планке, увеличивая время на <strong>1% в день</strong>. Начни с доступной тебе длительности — 10–15 секунд достаточно, чтобы начать.</p>
-        <h3>Ценность</h3>
+        <h2 data-i18n="about.h2">Методология «Планка + 1%»</h2>
+        <p data-i18n="about.brief"><strong>Краткая суть:</strong> ежедневно стой в планке, увеличивая время на <strong>1% в день</strong>. Начни с доступной тебе длительности — 10–15 секунд достаточно, чтобы начать.</p>
+        <h3 data-i18n="about.valueTitle">Ценность</h3>
         <div class="grid" style="grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px">
-          <div class="card"><strong>Воля и намерение</strong><br><span class="muted">способность завершать начатое</span></div>
-          <div class="card"><strong>Самодисциплина</strong><br><span class="muted">устойчивость к колебаниям</span></div>
-          <div class="card"><strong>Мышление роста</strong><br><span class="muted">доступ к экспоненциальному росту</span></div>
-          <div class="card"><strong>Спонтанность и мотивация</strong><br><span class="muted">внутренний огонь</span></div>
-          <div class="card"><strong>Вера в результат</strong><br><span class="muted">личный опыт «невозможного»</span></div>
+          <div class="card"><strong data-i18n="about.values.will.title">Воля и намерение</strong><br><span class="muted" data-i18n="about.values.will.text">способность завершать начатое</span></div>
+          <div class="card"><strong data-i18n="about.values.discipline.title">Самодисциплина</strong><br><span class="muted" data-i18n="about.values.discipline.text">устойчивость к колебаниям</span></div>
+          <div class="card"><strong data-i18n="about.values.growth.title">Мышление роста</strong><br><span class="muted" data-i18n="about.values.growth.text">доступ к экспоненциальному росту</span></div>
+          <div class="card"><strong data-i18n="about.values.motivation.title">Спонтанность и мотивация</strong><br><span class="muted" data-i18n="about.values.motivation.text">внутренний огонь</span></div>
+          <div class="card"><strong data-i18n="about.values.belief.title">Вера в результат</strong><br><span class="muted" data-i18n="about.values.belief.text">личный опыт «невозможного»</span></div>
         </div>
       </div>
       <div class="card">
-        <h3 id="how">Как начать</h3>
+        <h3 id="how" data-i18n="about.howTitle">Как начать</h3>
         <ol class="list-tight">
-          <li>Встань в планку и зафиксируй стартовое время.</li>
-          <li>Каждый день добавляй +1% к вчерашнему времени.</li>
-          <li>Не пропускай. Регулярность важнее идеала.</li>
-          <li>Освой правильную форму, чтобы развиваться безопасно.</li>
+          <li data-i18n="about.how.1">Встань в планку и зафиксируй стартовое время.</li>
+          <li data-i18n="about.how.2">Каждый день добавляй +1% к вчерашнему времени.</li>
+          <li data-i18n="about.how.3">Не пропускай. Регулярность важнее идеала.</li>
+          <li data-i18n="about.how.4">Освой правильную форму, чтобы развиваться безопасно.</li>
         </ol>
         <div class="mt-16">
-          <a class="btn" href="#stages">К этапам практики</a>
+          <a class="btn" href="#stages" data-i18n="about.cta">К этапам практики</a>
         </div>
       </div>
     </div>
@@ -203,24 +165,24 @@
   <section id="stages">
     <div class="container grid grid-2">
       <div>
-        <h2>Этапы практики</h2>
-        <h3 id="start">Начало</h3>
-        <p>Первое действие — просто встать в планку и засечь время. Это твоя точка отсчёта. Ограничений нет.</p>
-        <h3>Первые дни</h3>
-        <p>Цель — войти в ритм. Найди время, место, поддержку. Несколько дней форма не критична — важно закрепить привычку.</p>
-        <h3>Изначальное наращивание</h3>
-        <p>Рост по 1% в день — как сложные проценты. Сначала прибавка незаметна, потом — ускоряется. <span class="mono">20с → 21с</span> примерно через 5 дней; <span class="mono">30с → 31с</span> — через 3–4 дня.</p>
-        <h3>Удвоения (2×)</h3>
-        <p>Любой старт удваивается примерно за 70 дней: <span class="mono">1.01^70 ≈ 2.007</span>. 20с → 40с, 1м → 2м, 5м → 10м.</p>
+        <h2 data-i18n="stages.h2">Этапы практики</h2>
+        <h3 id="start" data-i18n="stages.start.h3">Начало</h3>
+        <p data-i18n="stages.start.p">Первое действие — просто встать в планку и засечь время. Это твоя точка отсчёта. Ограничений нет.</p>
+        <h3 data-i18n="stages.first.h3">Первые дни</h3>
+        <p data-i18n="stages.first.p">Цель — войти в ритм. Найди время, место, поддержку. Несколько дней форма не критична — важно закрепить привычку.</p>
+        <h3 data-i18n="stages.growth.h3">Изначальное наращивание</h3>
+        <p data-i18n="stages.growth.p">Рост по 1% в день — как сложные проценты. Сначала прибавка незаметна, потом — ускоряется. <span class="mono">20с → 21с</span> примерно через 5 дней; <span class="mono">30с → 31с</span> — через 3–4 дня.</p>
+        <h3 data-i18n="stages.double.h3">Удвоения (2×)</h3>
+        <p data-i18n="stages.double.p">Любой старт удваивается примерно за 70 дней: <span class="mono">1.01^70 ≈ 2.007</span>. 20с → 40с, 1м → 2м, 5м → 10м.</p>
       </div>
       <div class="card">
-        <h3>Калькулятор +1%</h3>
-        <label>Стартовое время (сек):<br>
-          <input id="startSecs" type="number" min="1" value="20" class="mono" style="width:100%; padding:10px; border-radius:10px; background:#0b0b0b; color:var(--fg); border:1px solid #1f1f1f">
+        <h3 data-i18n="calc.h3">Калькулятор +1%</h3>
+        <label data-i18n="calc.label">Стартовое время (сек):<br>
+          <input id="startSecs" type="number" min="1" value="20" class="mono" style="width:100%;padding:10px;border-radius:10px;background:#0b0b0b;color:var(--fg);border:1px solid #1f1f1f">
         </label>
-        <div class="grid mt-12" style="grid-template-columns:repeat(2,1fr); gap:10px">
-          <button class="btn" onclick="recalc()">Рассчитать</button>
-          <a class="btn btn-ghost" href="#math">Смотреть математику</a>
+        <div class="grid mt-12" style="grid-template-columns:repeat(2,1fr);gap:10px">
+          <button class="btn" onclick="recalc()" data-i18n="calc.btnCalc">Рассчитать</button>
+          <a class="btn btn-ghost" href="#math" data-i18n="calc.btnMath">Смотреть математику</a>
         </div>
         <div class="mt-16 mono" id="calcOut"></div>
       </div>
@@ -231,20 +193,20 @@
   <section id="form">
     <div class="container grid grid-2">
       <div>
-        <h2>Форма планки</h2>
-        <p>Правильная форма — ключ к развитию и безопасности. Допустимо первые дни “криво”, но регулярно так делать нельзя.</p>
+        <h2 data-i18n="form.h2">Форма планки</h2>
+        <p data-i18n="form.p1">Правильная форма — ключ к развитию и безопасности. Допустимо первые дни “криво”, но регулярно так делать нельзя.</p>
         <ul class="list-tight">
-          <li>Без прогиба в пояснице — подтяни копчик, лобок — к лбу.</li>
-          <li>Лопатки тянем вверх, плечами толкаем пол, не проваливаемся.</li>
-          <li>Голова — в линию корпуса, взгляд в пол.</li>
+          <li data-i18n="form.li1">Без прогиба в пояснице — подтяни копчик, лобок — к лбу.</li>
+          <li data-i18n="form.li2">Лопатки тянем вверх, плечами толкаем пол, не проваливаемся.</li>
+          <li data-i18n="form.li3">Голова — в линию корпуса, взгляд в пол.</li>
         </ul>
-        <p class="muted">Если что-то болит — остановись, проверь форму, при необходимости проконсультируйся со специалистом.</p>
+        <p class="muted" data-i18n="form.note">Если что-то болит — остановись, проверь форму, при необходимости проконсультируйся со специалистом.</p>
       </div>
       <div class="card">
-        <h3>Сигналы тела</h3>
-        <p><strong>Устал — это нормально.</strong> Это признак развития.<br>
-        <strong>Ум «играет»</strong> — тренируй волю и намерение.<br>
-        <strong>Боль / дискомфорт</strong> — скорректируй технику.</p>
+        <h3 data-i18n="form.signals">Сигналы тела</h3>
+        <p><strong data-i18n="form.ok1">Устал — это нормально.</strong> <span data-i18n="form.ok1x">Это признак развития.</span><br>
+        <strong data-i18n="form.mind">Ум «играет»</strong> — <span data-i18n="form.mindx">тренируй волю и намерение.</span><br>
+        <strong data-i18n="form.pain">Боль / дискомфорт</strong> — <span data-i18n="form.painx">скорректируй технику.</span></p>
       </div>
     </div>
   </section>
@@ -252,21 +214,21 @@
   <!-- Math -->
   <section id="math">
     <div class="container">
-      <h2>Математика роста</h2>
-      <p>Формула простая: <span class="mono">t(n) = t(0) × 1.01^n</span>, где n — число дней практики.</p>
+      <h2 data-i18n="math.h2">Математика роста</h2>
+      <p data-i18n="math.p">Формула простая: <span class="mono">t(n) = t(0) × 1.01^n</span>, где n — число дней практики.</p>
       <div class="mt-16 card">
         <div class="grid-math">
           <div>
-            <h3>Пример на год</h3>
-            <p>При старте с 20 секунд через 365 дней получится около <span class="mono">20×1.01^365 ≈ 12 минут</span>.</p>
-            <p>Через 70 дней — удвоение. Через 140 — четырёхкратный рост и т. д.</p>
+            <h3 data-i18n="math.year.h3">Пример на год</h3>
+            <p data-i18n="math.year.p1">При старте с 20 секунд через 365 дней получится около <span class="mono">20×1.01^365 ≈ 12 минут</span>.</p>
+            <p data-i18n="math.year.p2">Через 70 дней — удвоение. Через 140 — четырёхкратный рост и т. д.</p>
           </div>
           <div>
             <div class="table-wrap"><table id="growthTable">
-              <thead><tr><th>День</th><th>Время</th></tr></thead>
+              <thead><tr><th data-i18n="math.table.day">День</th><th data-i18n="math.table.time">Время</th></tr></thead>
               <tbody></tbody>
             </table></div>
-            <p class="muted mono mt-8">* Отображаются ключевые вехи: 0, 30, 70, 140, 365</p>
+            <p class="muted mono mt-8" data-i18n="math.note">* Отображаются ключевые вехи: 0, 30, 70, 140, 365</p>
           </div>
         </div>
       </div>
@@ -277,18 +239,18 @@
   <section id="community">
     <div class="container grid grid-2">
       <div>
-        <h2>Социальное взаимодействие</h2>
-        <p>Те, кто прошли путь +1%, меняются изнутри: образ жизни, ценности, возможности. Сообщество поддерживает на каждом этапе.</p>
-        <p>Форматы: чаты, взаимная поддержка, примеры, технические советы, наставничество.</p>
+        <h2 data-i18n="community.h2">Социальное взаимодействие</h2>
+        <p data-i18n="community.p1">Те, кто прошли путь +1%, меняются изнутри: образ жизни, ценности, возможности. Сообщество поддерживает на каждом этапе.</p>
+        <p data-i18n="community.p2">Форматы: чаты, взаимная поддержка, примеры, технические советы, наставничество.</p>
         <div class="cta-row mt-16">
-          <a class="btn" href="https://t.me/+E7CMrZHsJ4ozYTM8" id="joinChatBtn" target="_blank" rel="noopener noreferrer">Вступить в чат</a>
-          <a class="btn btn-ghost" href="#guides">Для проводников</a>
+          <a class="btn" href="https://t.me/+E7CMrZHsJ4ozYTM8" id="joinChatBtn" target="_blank" rel="noopener noreferrer" data-i18n="community.join">Вступить в чат</a>
+          <a class="btn btn-ghost" href="#guides" data-i18n="community.guides">Для проводников</a>
         </div>
       </div>
       <div class="card">
-        <h3 id="guides">Как помочь другим</h3>
-        <p>Практика свободна и доступна всем. Если проводишь занятия, ведёшь чаты или курсы — укажи ссылку на методологию <span class="mono">plank.today</span>.</p>
-        <p>Получаешь пользу или доход как проводник — поддержи проект донатом.</p>
+        <h3 id="guides" data-i18n="community.how.h3">Как помочь другим</h3>
+        <p data-i18n="community.how.p1">Практика свободна и доступна всем. Если проводишь занятия, ведёшь чаты или курсы — укажи ссылку на методологию <span class="mono">plank.today</span>.</p>
+        <p data-i18n="community.how.p2">Получаешь пользу или доход как проводник — поддержи проект донатом.</p>
       </div>
     </div>
   </section>
@@ -297,16 +259,16 @@
   <section id="donate">
     <div class="container grid grid-2">
       <div>
-        <h2>Благодарность</h2>
-        <p>Методика свободна. Нравится и помогает — поддержи развитие.</p>
+        <h2 data-i18n="donate.h2">Благодарность</h2>
+        <p data-i18n="donate.p">Методика свободна. Нравится и помогает — поддержи развитие.</p>
         <div class="cta-row mt-16">
-          <a class="btn" href="https://www.paypal.com/paypalme/denisstark/10USD" id="donateBtn" target="_blank" rel="noopener noreferrer">Донат</a>
-          <a class="btn btn-ghost" href="#footer">Контакты</a>
+          <a class="btn" href="https://www.paypal.com/paypalme/denisstark" id="donateBtn" target="_blank" rel="noopener noreferrer" data-i18n="donate.btn">Донат</a>
+          <a class="btn btn-ghost" href="#footer" data-i18n="donate.contacts">Контакты</a>
         </div>
       </div>
       <div class="card">
-        <h3>Манифест</h3>
-        <p class="quote">Мы — не планктон. Мы — те, кто растёт. Маленькими шагами. Каждый день. Планка +1% — путь воли, веры и тела.</p>
+        <h3 data-i18n="manifest.h3">Манифест</h3>
+        <p class="quote" data-i18n="manifest.text">Мы — не планктон. Мы — те, кто растёт. Маленькими шагами. Каждый день. Планка +1% — путь воли, веры и тела.</p>
       </div>
     </div>
   </section>
@@ -314,18 +276,18 @@
   <!-- FAQ -->
   <section>
     <div class="container">
-      <h2>FAQ</h2>
+      <h2 data-i18n="faq.h2">FAQ</h2>
       <details>
-        <summary>Можно ли пропускать дни?</summary>
-        <p>Лучше — нет. Регулярность важнее скорости. Если пропустил — продолжай с последнего комфортного значения, без резких скачков.</p>
+        <summary data-i18n="faq.q1">Можно ли пропускать дни?</summary>
+        <p data-i18n="faq.a1">Лучше — нет. Регулярность важнее скорости. Если пропустил — продолжай с последнего комфортного значения, без резких скачков.</p>
       </details>
       <details>
-        <summary>Когда остановиться?</summary>
-        <p>Это личный выбор. Проверь: это истинное «достаточно» или привычка избегать сложностей?</p>
+        <summary data-i18n="faq.q2">Когда остановиться?</summary>
+        <p data-i18n="faq.a2">Это личный выбор. Проверь: это истинное «достаточно» или привычка избегать сложностей?</p>
       </details>
       <details>
-        <summary>Болит спина/шея — что делать?</summary>
-        <p>Проверь технику. Снизь время, укрепляй мышцы кора. При необходимости обратись к специалисту.</p>
+        <summary data-i18n="faq.q3">Болит спина/шея — что делать?</summary>
+        <p data-i18n="faq.a3">Проверь технику. Снизь время, укрепляй мышцы кора. При необходимости обратись к специалисту.</p>
       </details>
     </div>
   </section>
@@ -335,33 +297,123 @@
     <div class="container foot-grid">
       <div>
         <div class="brand">PLANK +1%</div>
-        <p class="muted mt-12">Свободная практика развития. Без paywall. Поддерживается сообществом.</p>
+        <p class="muted mt-12" data-i18n="footer.free">Свободная практика развития. Без paywall. Поддерживается сообществом.</p>
         <p class="mono mt-12">© 2025 plank.today</p>
       </div>
       <div>
-        <h3>Контакты</h3>
+        <h3 data-i18n="footer.contacts">Контакты</h3>
         <p>Email: <a href="mailto:hello@plank.today">hello@plank.today</a></p>
-        <p>Telegram: <a href="https://t.me/+E7CMrZHsJ4ozYTM8">@planktoday</a></p>
+        <p><span data-i18n="footer.telegram">Telegram</span>: <a href="https://t.me/+E7CMrZHsJ4ozYTM8">@planktoday</a></p>
       </div>
       <div>
-        <h3>Ссылки</h3>
-        <p><a href="#community">Сообщество</a></p>
-        <p><a href="#donate">Донат</a></p>
-        <p><a href="#math">Математика</a></p>
+        <h3 data-i18n="footer.links">Ссылки</h3>
+        <p><a href="#community" data-i18n="footer.linkCommunity">Сообщество</a></p>
+        <p><a href="#donate" data-i18n="footer.linkDonate">Донат</a></p>
+        <p><a href="#math" data-i18n="footer.linkMath">Математика</a></p>
       </div>
     </div>
   </footer>
 
   <script>
-    // Format seconds → human-friendly string
-    function fmt(sec) {
+    // --- i18n packs ---
+    const I18N = {
+      ru: {
+        nav:{about:'Суть',stages:'Этапы',form:'Форма',math:'Математика',community:'Сообщество',donate:'Донат'},
+        ui:{language:'Язык'},
+        hero:{kicker:'Каждый день',title:'Маленький шаг. <br/>Экспоненциальный результат.',subtitle:'Ежедневная планка и +1% ко времени в день. Начни с того, что доступно прямо сейчас — 10 секунд, 30 секунд, 1 минута. Главное — повторять.',ctaStart:'Начать сегодня',ctaHow:'Как это работает',badge:'⏱️ Удвоение каждые ~2.5 месяца',quote:'«Ты не должен быть сильным, чтобы начать. Но если начнёшь — станешь сильным.»',statStart:'Старт',stat70:'+70 дней',stat365:'+365 дней',note:'*Расчёт по формуле t×1.01^n'},
+        about:{h2:'Методология «Планка + 1%»',brief:'<strong>Краткая суть:</strong> ежедневно стой в планке, увеличивая время на <strong>1% в день</strong>. Начни с доступной тебе длительности — 10–15 секунд достаточно, чтобы начать.',valueTitle:'Ценность',values:{will:{title:'Воля и намерение',text:'способность завершать начатое'},discipline:{title:'Самодисциплина',text:'устойчивость к колебаниям'},growth:{title:'Мышление роста',text:'доступ к экспоненциальному росту'},motivation:{title:'Спонтанность и мотивация',text:'внутренний огонь'},belief:{title:'Вера в результат',text:'личный опыт «невозможного»'}},howTitle:'Как начать',how:{1:'Встань в планку и зафиксируй стартовое время.',2:'Каждый день добавляй +1% к вчерашнему времени.',3:'Не пропускай. Регулярность важнее идеала.',4:'Освой правильную форму, чтобы развиваться безопасно.'},cta:'К этапам практики'},
+        stages:{h2:'Этапы практики',start:{h3:'Начало',p:'Первое действие — просто встать в планку и засечь время. Это твоя точка отсчёта. Ограничений нет.'},first:{h3:'Первые дни',p:'Цель — войти в ритм. Найди время, место, поддержку. Несколько дней форма не критична — важно закрепить привычку.'},growth:{h3:'Изначальное наращивание',p:'Рост по 1% в день — как сложные проценты. Сначала прибавка незаметна, потом — ускоряется. <span class="mono">20с → 21с</span> примерно через 5 дней; <span class="mono">30с → 31с</span> — через 3–4 дня.'},double:{h3:'Удвоения (2×)',p:'Любой старт удваивается примерно за 70 дней: <span class="mono">1.01^70 ≈ 2.007</span>. 20с → 40с, 1м → 2м, 5м → 10м.'}},
+        calc:{h3:'Калькулятор +1%',label:'Стартовое время (сек):<br>',btnCalc:'Рассчитать',btnMath:'Смотреть математику'},
+        form:{h2:'Форма планки',p1:'Правильная форма — ключ к развитию и безопасности. Допустимо первые дни “криво”, но регулярно так делать нельзя.',li1:'Без прогиба в пояснице — подтяни копчик, лобок — к лбу.',li2:'Лопатки тянем вверх, плечами толкаем пол, не проваливаемся.',li3:'Голова — в линию корпуса, взгляд в пол.',note:'Если что-то болит — остановись, проверь форму, при необходимости проконсультируйся со специалистом.',signals:'Сигналы тела',ok1:'Устал — это нормально.',ok1x:'Это признак развития.',mind:'Ум «играет»',mindx:'тренируй волю и намерение.',pain:'Боль / дискомфорт',painx:'скорректируй технику.'},
+        math:{h2:'Математика роста',p:'Формула простая: <span class="mono">t(n) = t(0) × 1.01^n</span>, где n — число дней практики.',year:{h3:'Пример на год',p1:'При старте с 20 секунд через 365 дней получится около <span class="mono">20×1.01^365 ≈ 12 минут</span>.',p2:'Через 70 дней — удвоение. Через 140 — четырёхкратный рост и т. д.'},table:{day:'День',time:'Время'},note:'* Отображаются ключевые вехи: 0, 30, 70, 140, 365'},
+        community:{h2:'Социальное взаимодействие',p1:'Те, кто прошли путь +1%, меняются изнутри: образ жизни, ценности, возможности. Сообщество поддерживает на каждом этапе.',p2:'Форматы: чаты, взаимная поддержка, примеры, технические советы, наставничество.',join:'Вступить в чат',guides:'Для проводников',how:{h3:'Как помочь другим',p1:'Практика свободна и доступна всем. Если проводишь занятия, ведёшь чаты или курсы — укажи ссылку на методологию <span class="mono">plank.today</span>.',p2:'Получаешь пользу или доход как проводник — поддержи проект донатом.'}},
+        donate:{h2:'Благодарность',p:'Методика свободна. Нравится и помогает — поддержи развитие.',btn:'Донат',contacts:'Контакты'},
+        manifest:{h3:'Манифест',text:'Мы — не планктон. Мы — те, кто растёт. Маленькими шагами. Каждый день. Планка +1% — путь воли, веры и тела.'},
+        faq:{h2:'FAQ',q1:'Можно ли пропускать дни?',a1:'Лучше — нет. Регулярность важнее скорости. Если пропустил — продолжай с последнего комфортного значения, без резких скачков.',q2:'Когда остановиться?',a2:'Это личный выбор. Проверь: это истинное «достаточно» или привычка избегать сложностей?',q3:'Болит спина/шея — что делать?',a3:'Проверь технику. Снизь время, укрепляй мышцы кора. При необходимости обратись к специалисту.'},
+        footer:{free:'Свободная практика развития. Без paywall. Поддерживается сообществом.',contacts:'Контакты',telegram:'Telegram',links:'Ссылки',linkCommunity:'Сообщество',linkDonate:'Донат',linkMath:'Математика'}
+      },
+      en: {
+        nav:{about:'About',stages:'Stages',form:'Form',math:'Math',community:'Community',donate:'Donate'},
+        ui:{language:'Language'},
+        hero:{kicker:'Every day',title:'A tiny step.<br/>An exponential result.',subtitle:'Hold a plank every day and add just +1% time daily. Start with what’s available now — 10 seconds, 30 seconds, 1 minute. The key is to repeat.',ctaStart:'Start today',ctaHow:'How it works',badge:'⏱️ Doubling every ~2.5 months',quote:'“You don’t have to be strong to start. But if you start — you’ll become strong.”',statStart:'Start',stat70:'+70 days',stat365:'+365 days',note:'*Calculated as t×1.01^n'},
+        about:{h2:'Method “Plank +1%”',brief:'<strong>Essence:</strong> hold a plank daily and increase your time by <strong>1% per day</strong>. Start with any duration — 10–15 seconds is enough to begin.',valueTitle:'Value',values:{will:{title:'Will & Intention',text:'ability to finish what you start'},discipline:{title:'Self-discipline',text:'resilience to inner swings'},growth:{title:'Growth mindset',text:'access to exponential growth'},motivation:{title:'Spontaneity & Motivation',text:'inner fire without pressure'},belief:{title:'Belief in results',text:'personal experience of “impossible”'}},howTitle:'How to start',how:{1:'Take a plank and record your starting time.',2:'Add +1% to yesterday’s time every day.',3:'Don’t skip. Consistency beats perfection.',4:'Learn proper form to grow safely.'},cta:'Go to stages'},
+        stages:{h2:'Practice stages',start:{h3:'Start',p:'First action — just take a plank and time it. That’s your baseline. No limits.'},first:{h3:'First days',p:'Goal — get into rhythm. Find time, place, support. Form can be imperfect for a few days — build the habit first.'},growth:{h3:'Initial growth',p:'+1% a day works like compound interest. Small at first, then faster. <span class="mono">20s → 21s</span> in ~5 days; <span class="mono">30s → 31s</span> in 3–4 days.'},double:{h3:'Doublings (2×)',p:'Any start doubles in ~70 days: <span class="mono">1.01^70 ≈ 2.007</span>. 20s → 40s, 1m → 2m, 5m → 10m.'}},
+        calc:{h3:' +1% Calculator',label:'Starting time (sec):<br>',btnCalc:'Calculate',btnMath:'See the math'},
+        form:{h2:'Plank form',p1:'Proper form is key to progress and safety. Imperfect for a few days is okay — but don’t keep it that way.',li1:'Avoid lumbar arch — tuck the tailbone, lift the pubic bone.',li2:'Scapula up, press the floor with shoulders, avoid sinking.',li3:'Head in line with the body, gaze down.',note:'If something hurts — stop, check form, consult a pro if needed.',signals:'Body signals',ok1:'Fatigue is normal.',ok1x:'It indicates growth.',mind:'Mind “plays”',mindx:'train will and intention.',pain:'Pain / discomfort',painx:'adjust technique.'},
+        math:{h2:'Math of growth',p:'Simple formula: <span class="mono">t(n) = t(0) × 1.01^n</span>, where n is days of practice.',year:{h3:'One‑year example',p1:'Starting at 20 seconds, after 365 days it’s roughly <span class="mono">20×1.01^365 ≈ 12 minutes</span>.',p2:'~70 days to double; ~140 for 4×, and so on.'},table:{day:'Day',time:'Time'},note:'* Key milestones shown: 0, 30, 70, 140, 365'},
+        community:{h2:'Community',p1:'+1% practitioners change from within: lifestyle, values, capacity. The community supports you at every stage.',p2:'Formats: chats, mutual support, examples, technical tips, mentoring.',join:'Join the chat',guides:'For guides',how:{h3:'How to help others',p1:'The practice is free and open. If you teach or host groups, please cite <span class="mono">plank.today</span>.',p2:'If you benefit or earn as a guide — consider donating.'}},
+        donate:{h2:'Support',p:'The method is free. If you like it and it helps — support the project.',btn:'Donate',contacts:'Contacts'},
+        manifest:{h3:'Manifesto',text:'We are not plankton. We are the ones who grow — one tiny step at a time. Every day. Plank +1% is a path of will, faith, and body.'},
+        faq:{h2:'FAQ',q1:'Can I skip days?',a1:'Better not. Consistency matters most. If you skipped — continue from a comfortable value without big jumps.',q2:'When to stop?',a2:'Personal choice. Is it a true “enough”, or avoidance?',q3:'Back/neck pain — what to do?',a3:'Check technique. Reduce time, strengthen the core. Consult a specialist if needed.'},
+        footer:{free:'Free practice of growth. No paywall. Community-supported.',contacts:'Contacts',telegram:'Telegram',links:'Links',linkCommunity:'Community',linkDonate:'Donate',linkMath:'Math'}
+      },
+      es: {
+        nav:{about:'Esencia',stages:'Etapas',form:'Técnica',math:'Matemática',community:'Comunidad',donate:'Donar'},
+        ui:{language:'Idioma'},
+        hero:{kicker:'Cada día',title:'Un paso pequeño.<br/>Un resultado exponencial.',subtitle:'Haz plancha cada día y suma solo +1% al tiempo diario. Empieza con lo que puedas ahora — 10 s, 30 s, 1 min. La clave es repetir.',ctaStart:'Empezar hoy',ctaHow:'Cómo funciona',badge:'⏱️ Duplicación cada ~2,5 meses',quote:'“No tienes que ser fuerte para empezar. Si empiezas, te harás fuerte.”',statStart:'Inicio',stat70:'+70 días',stat365:'+365 días',note:'*Cálculo: t×1.01^n'},
+        about:{h2:'Método «Plancha +1%»',brief:'<strong>Esencia:</strong> hacer plancha a diario y aumentar el tiempo <strong>1% por día</strong>. Empieza con cualquier duración — 10–15 segundos bastan.',valueTitle:'Valor',values:{will:{title:'Voluntad e intención',text:'capacidad de terminar lo que empiezas'},discipline:{title:'Autodisciplina',text:'resistencia a vaivenes internos'},growth:{title:'Mentalidad de crecimiento',text:'acceso al crecimiento exponencial'},motivation:{title:'Espontaneidad y motivación',text:'fuego interno sin presión'},belief:{title:'Fe en el resultado',text:'experiencia personal de lo “imposible”'}},howTitle:'Cómo empezar',how:{1:'Toma la plancha y registra tu tiempo inicial.',2:'Cada día añade +1% al tiempo de ayer.',3:'No faltes. La constancia supera a la perfección.',4:'Aprende la técnica correcta para progresar con seguridad.'},cta:'Ir a las etapas'},
+        stages:{h2:'Etapas de la práctica',start:{h3:'Inicio',p:'La primera acción — hacer plancha y cronometrar. Es tu punto de partida. Sin límites.'},first:{h3:'Primeros días',p:'Meta — entrar en ritmo. Encuentra tiempo, lugar y apoyo. La forma puede no ser perfecta unos días — consolida el hábito.'},growth:{h3:'Crecimiento inicial',p:'+1% al día funciona como interés compuesto. Pequeño al principio, luego más rápido. <span class="mono">20s → 21s</span> en ~5 días; <span class="mono">30s → 31s</span> en 3–4 días.'},double:{h3:'Duplicaciones (2×)',p:'Cualquier inicio se duplica en ~70 días: <span class="mono">1.01^70 ≈ 2.007</span>. 20s → 40s, 1m → 2m, 5m → 10m.'}},
+        calc:{h3:'Calculadora +1%',label:'Tiempo inicial (seg):<br>',btnCalc:'Calcular',btnMath:'Ver la matemática'},
+        form:{h2:'Técnica de la plancha',p1:'La forma correcta es clave para el progreso y la seguridad. Aceptable unos días imperfecta — pero no la mantengas así.',li1:'Evita la curvatura lumbar — bascula la pelvis, eleva el pubis.',li2:'Escápulas arriba, empuja el suelo con los hombros, evita hundirte.',li3:'Cabeza en línea con el cuerpo, mirada al suelo.',note:'Si algo duele — detente, corrige la técnica y consulta a un profesional si hace falta.',signals:'Señales del cuerpo',ok1:'El cansancio es normal.',ok1x:'Indica progreso.',mind:'La mente “juega”',mindx:'entrena la voluntad y la intención.',pain:'Dolor / molestia',painx:'ajusta la técnica.'},
+        math:{h2:'Matemática del crecimiento',p:'Fórmula simple: <span class="mono">t(n) = t(0) × 1.01^n</span>, donde n son días de práctica.',year:{h3:'Ejemplo de un año',p1:'Empezando en 20 segundos, tras 365 días es ~<span class="mono">12 minutos</span>.',p2:'~70 días para duplicar; ~140 para 4×.'},table:{day:'Día',time:'Tiempo'},note:'* Se muestran hitos: 0, 30, 70, 140, 365'},
+        community:{h2:'Comunidad',p1:'Quienes practican +1% cambian desde dentro: estilo de vida, valores, capacidades. La comunidad apoya en cada etapa.',p2:'Formatos: chats, apoyo mutuo, ejemplos, consejos técnicos, mentoría.',join:'Unirse al chat',guides:'Para guías',how:{h3:'Cómo ayudar a otros',p1:'La práctica es libre y abierta. Si enseñas o coordinas grupos — cita <span class="mono">plank.today</span>.',p2:'Si te beneficia o generas ingresos — considera donar.'}},
+        donate:{h2:'Apoyo',p:'El método es libre. Si te gusta y ayuda — apoya el proyecto.',btn:'Donar',contacts:'Contactos'},
+        manifest:{h3:'Manifiesto',text:'No somos plancton. Somos quienes crecemos — paso a paso. Cada día. Plancha +1% es un camino de voluntad, fe y cuerpo.'},
+        faq:{h2:'FAQ',q1:'¿Se pueden saltar días?',a1:'Mejor no. La constancia es lo más importante. Si faltaste — continúa desde un valor cómodo, sin saltos grandes.',q2:'¿Cuándo parar?',a2:'Es elección personal. ¿Es un “suficiente” verdadero o evasión?',q3:'¿Dolor de espalda/cuello?',a3:'Revisa la técnica. Reduce tiempo, fortalece el core. Consulta a un especialista si hace falta.'},
+        footer:{free:'Práctica libre. Sin paywall. Sostenida por la comunidad.',contacts:'Contactos',telegram:'Telegram',links:'Enlaces',linkCommunity:'Comunidad',linkDonate:'Donar',linkMath:'Matemática'}
+      },
+      ar: {
+        nav:{about:'الخلاصة',stages:'المراحل',form:'الوضعية',math:'الرياضيات',community:'المجتمع',donate:'الدعم'},
+        ui:{language:'اللغة'},
+        hero:{kicker:'كل يوم',title:'خطوة صغيرة.<br/>نتيجة أُسّية.',subtitle:'ثبّت وضعية البلانك يوميًا وأضف ‎+1%‎ من الوقت كل يوم. ابدأ بما تستطيع الآن — 10 ثوانٍ، 30 ثانية، دقيقة. المفتاح هو الاستمرار.',ctaStart:'ابدأ اليوم',ctaHow:'كيف تعمل الطريقة',badge:'⏱️ يتضاعف كل ~2.5 شهر',quote:'"لست مضطرًا أن تكون قويًا لتبدأ. لكن إن بدأت — ستصبح قويًا."',statStart:'البدء',stat70:'+٧٠ يومًا',stat365:'+٣٦٥ يومًا',note:'*الحساب: t×1.01^n'},
+        about:{h2:'منهج «بلانك ‎+1%»',brief:'<strong>الخلاصة:</strong> حافظ على البلانك يوميًا وزد الزمن <strong>1% يوميًا</strong>. ابدأ بأي مدة — 10–15 ثانية تكفي للبداية.',valueTitle:'القيمة',values:{will:{title:'الإرادة والنية',text:'القدرة على إتمام ما تبدأه'},discipline:{title:'الانضباط الذاتي',text:'المرونة أمام التقلبات الداخلية'},growth:{title:'عقلية النمو',text:'الوصول إلى نمو أُسّي'},motivation:{title:'العفوية والدافع',text:'شغف داخلي بلا ضغط'},belief:{title:'الإيمان بالنتيجة',text:'تجربة شخصية لـ"المستحيل"'}},howTitle:'كيف تبدأ',how:{1:'اتخذ وضعية البلانك وسجّل زمن البداية.',2:'زد ‎+1%‎ من زمن الأمس كل يوم.',3:'لا تنقطع. الاستمرارية أهم من الكمال.',4:'تعلّم الوضعية الصحيحة للنمو بأمان.'},cta:'الانتقال إلى المراحل'},
+        stages:{h2:'مراحل الممارسة',start:{h3:'البداية',p:'أول خطوة — خذ وضعية البلانك وابدأ التوقيت. هذه نقطة الانطلاق. لا قيود.'},first:{h3:'الأيام الأولى',p:'الهدف — الدخول في الإيقاع. ابحث عن الوقت والمكان والدعم. يمكن أن تكون الوضعية غير مثالية لعدة أيام — ركّز على بناء العادة.'},growth:{h3:'النمو الأولي',p:'‎+1%‎ يوميًا مثل الفائدة المركبة. صغير في البداية ثم أسرع. <span class="mono">20ث → 21ث</span> خلال ~5 أيام؛ <span class="mono">30ث → 31ث</span> خلال 3–4 أيام.'},double:{h3:'حالات التضاعف (2×)',p:'أي بداية تتضاعف خلال ~70 يومًا: <span class="mono">1.01^70 ≈ 2.007</span>. 20ث → 40ث، 1د → 2د، 5د → 10د.'}},
+        calc:{h3:'حساب ‎+1%‎',label:'زمن البداية (ث):<br>',btnCalc:'احسب',btnMath:'شاهد الرياضيات'},
+        form:{h2:'وضعية البلانك',p1:'الوضعية الصحيحة أساس التقدم والسلامة. مقبول أن تكون غير مثالية لبضعة أيام — لكن لا تستمر كذلك.',li1:'تجنّب تقوّس أسفل الظهر — أدر الحوض للأمام.',li2:'لوحا الكتف للأعلى، اضغط الأرض بالكتفين وتجنّب الهبوط.',li3:'الرأس على خط واحد مع الجذع، النظر للأسفل.',note:'إن شعرت بألم — توقّف وصحّح الوضعية واستشر مختصًا عند الحاجة.',signals:'إشارات الجسد',ok1:'التعب طبيعي.',ok1x:'وهو علامة على التطوّر.',mind:'العقل "يلعب"',mindx:'درّب الإرادة والنية.',pain:'ألم / انزعاج',painx:'عدّل التقنية.'},
+        math:{h2:'رياضيات النمو',p:'معادلة بسيطة: <span class="mono">t(n) = t(0) × 1.01^n</span>، حيث n عدد أيام الممارسة.',year:{h3:'مثال سنوي',p1:'بالبدء من 20 ثانية، بعد 365 يومًا ≈ <span class="mono">12 دقيقة</span>.',p2:'~70 يومًا للتضاعف؛ ~140 لأربع مرات.'},table:{day:'اليوم',time:'الزمن'},note:'* تُعرض المحطات الرئيسية: 0، 30، 70، 140، 365'},
+        community:{h2:'المجتمع',p1:'ممارسو ‎+1%‎ يتغيّرون من الداخل: نمط حياة، قيم، قدرات. المجتمع يدعمك في كل مرحلة.',p2:'أشكال الدعم: محادثات، دعم متبادل، أمثلة، نصائح تقنية، إرشاد.',join:'انضم إلى الدردشة',guides:'للمرشدين',how:{h3:'كيف تساعد الآخرين',p1:'الممارسة حرّة ومفتوحة. إن كنت تُدرّس أو تدير مجموعات — اذكر <span class="mono">plank.today</span>.',p2:'إن استفدت أو ربحت كمرشد — فكّر في التبرع.'}},
+        donate:{h2:'الدعم',p:'المنهج مجاني. إن أعجبك وساعدك — ادعم المشروع.',btn:'تبرّع',contacts:'التواصل'},
+        manifest:{h3:'بيان',text:'لسنا عوالق. نحن الذين ننمو — خطوة صغيرة كل يوم. بلانك ‎+1%‎ هو طريق الإرادة والإيمان والجسد.'},
+        faq:{h2:'الأسئلة الشائعة',q1:'هل يمكنني تفويت أيام؟',a1:'الأفضل عدم التفويت. الاستمرارية أهم شيء. إن فاتك يوم — تابع من قيمة مريحة دون قفزات كبيرة.',q2:'متى أتوقف؟',a2:'قرار شخصي. هل هو «كفاية» حقيقية أم تجنّب؟',q3:'ألم في الظهر/العنق؟',a3:'تحقق من التقنية. قلّل الزمن، قوِّ العضلة الأساسية. استشر مختصًا إذا لزم.'},
+        footer:{free:'ممارسة حرة دون حواجز دفع. بدعم المجتمع.',contacts:'التواصل',telegram:'تيليجرام',links:'روابط',linkCommunity:'المجتمع',linkDonate:'الدعم',linkMath:'الرياضيات'}
+      }
+    };
+
+    // detect & set language
+    function getInitialLang(){
+      const urlLang = new URLSearchParams(location.search).get('lang');
+      if(urlLang && I18N[urlLang]) return urlLang;
+      const nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'ru';
+      const code = nav.toLowerCase().slice(0,2);
+      return I18N[code] ? code : 'en';
+    }
+
+    function applyLang(lang){
+      const pack = I18N[lang] || I18N.en;
+      document.documentElement.lang = lang;
+      document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+      // swap nav order for rtl if needed (CSS handles flow)
+      document.querySelectorAll('[data-i18n]').forEach(el=>{
+        const key = el.getAttribute('data-i18n');
+        const parts = key.split('.');
+        let val = pack;
+        for(const p of parts){ if(val && p in val) val = val[p]; else { val = null; break; } }
+        if(val==null) return;
+        // Allow innerHTML for phrases with markup
+        el.innerHTML = val;
+      });
+      const sel = document.getElementById('langSel');
+      if(sel) sel.value = lang;
+    }
+
+    // --- existing time formatting & math ---
+    function fmt(sec){
       sec = Math.round(sec);
       const m = Math.floor(sec / 60);
       const s = sec % 60;
-      return m + ':' + String(s).padStart(2, '0');
+      return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
     }
 
-    // Fill hero stats & table based on starting secs
     function fillStats(start){
       const by = (n) => start * Math.pow(1.01, n);
       document.getElementById('statStart').textContent = fmt(start);
@@ -369,31 +421,45 @@
       document.getElementById('stat365').textContent  = fmt(by(365));
 
       const tBody = document.querySelector('#growthTable tbody');
-      tBody.innerHTML = '';
-      const milestones = [0,30,70,140,365];
-      milestones.forEach(d => {
-        const tr = document.createElement('tr');
-        const td1 = document.createElement('td');
-        const td2 = document.createElement('td');
-        td1.textContent = d + ' день';
-        td2.textContent = fmt(by(d));
-        tr.appendChild(td1); tr.appendChild(td2); tBody.appendChild(tr);
+      tBody.innerHTML='';
+      const milestones=[0,30,70,140,365];
+      milestones.forEach(d=>{
+        const tr=document.createElement('tr');
+        const td1=document.createElement('td');
+        const td2=document.createElement('td');
+        td1.setAttribute('data-i18n-static','math.table.day');
+        td1.textContent=d + (document.documentElement.lang==='ar'?' يوم':' день').replace('day','');
+        td1.textContent = d + ' ' + (document.documentElement.lang==='ar'?'يوم':'день');
+        td2.textContent=fmt(by(d));
+        tr.appendChild(td1);tr.appendChild(td2);tBody.appendChild(tr);
       });
-      // Calc block output
-      const out = document.getElementById('calcOut');
-      out.innerHTML = `Через <b>70</b> дней: <span class="mono">${fmt(by(70))}</span><br>`+
-                      `Через <b>140</b> дней: <span class="mono">${fmt(by(140))}</span><br>`+
-                      `Через <b>365</b> дней: <span class="mono">${fmt(by(365))}</span>`;
+
+      const out=document.getElementById('calcOut');
+      const lang=document.documentElement.lang;
+      const phrases={
+        ru:(d,v)=>`Через <b>${d}</b> дней: <span class="mono">${v}</span>`,
+        en:(d,v)=>`In <b>${d}</b> days: <span class="mono">${v}</span>`,
+        es:(d,v)=>`En <b>${d}</b> días: <span class="mono">${v}</span>`,
+        ar:(d,v)=>`خلال <b>${d}</b> يومًا: <span class="mono">${v}</span>`
+      };
+      out.innerHTML=[70,140,365].map(d=>phrases[lang](d,fmt(by(d)))).join('<br>');
     }
 
     function recalc(){
-      const n = Math.max(1, Number(document.getElementById('startSecs').value || 20));
+      const n=Math.max(1,Number(document.getElementById('startSecs').value||20));
       fillStats(n);
     }
 
-    // Initial
+    // init
+    const initialLang = getInitialLang();
+    applyLang(initialLang);
     fillStats(20);
 
+    // update on select
+    document.getElementById('langSel').addEventListener('change', (e)=>{
+      const lang=e.target.value; applyLang(lang); fillStats(Number(document.getElementById('startSecs').value||20));
+      const url=new URL(location.href); url.searchParams.set('lang',lang); history.replaceState({},'',url);
+    });
   </script>
 </body>
 </html>
