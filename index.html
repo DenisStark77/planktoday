@@ -98,6 +98,23 @@
     .mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}
     .mb-0{margin-bottom:0}.mb-8{margin-bottom:8px}.mb-24{margin-bottom:24px}
     .opacity-70{opacity:.7}
+    /* Global reset for responsive */
+    *,*::before,*::after{box-sizing:border-box}
+    img,video,svg{max-width:100%; height:auto}
+    body{overflow-x:hidden}
+    .wrap{overflow-wrap:anywhere; word-break:break-word}
+    .nav{flex-wrap:wrap; gap:10px}
+    nav{display:flex; flex-wrap:wrap}
+
+    /* Responsive helpers */
+    .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+    @media (max-width:720px){.grid3{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}}
+    .grid-math{display:grid; grid-template-columns:1fr; gap:12px}
+    @media (min-width:960px){.grid-math{grid-template-columns:1fr .9fr}}
+
+    /* Table responsive */
+    .table-wrap{overflow-x:auto; -webkit-overflow-scrolling:touch}
+
   </style>
 </head>
 <body>
@@ -133,7 +150,7 @@
       </div>
       <div class="hero-card">
         <div class="quote">«Ты не должен быть сильным, чтобы начать. Но если начнёшь — станешь сильным.»</div>
-        <div class="grid mt-16" style="grid-template-columns:repeat(3,1fr); gap:12px">
+        <div class="grid3 mt-16">
           <div class="card center" style="flex-direction:column">
             <div class="stat" id="statStart">20с</div>
             <div class="muted">Старт</div>
@@ -238,17 +255,17 @@
       <h2>Математика роста</h2>
       <p>Формула простая: <span class="mono">t(n) = t(0) × 1.01^n</span>, где n — число дней практики.</p>
       <div class="mt-16 card">
-        <div class="grid" style="grid-template-columns:1fr .9fr; gap:12px">
+        <div class="grid-math">
           <div>
             <h3>Пример на год</h3>
             <p>При старте с 20 секунд через 365 дней получится около <span class="mono">20×1.01^365 ≈ 12 минут</span>.</p>
             <p>Через 70 дней — удвоение. Через 140 — четырёхкратный рост и т. д.</p>
           </div>
           <div>
-            <table id="growthTable">
+            <div class="table-wrap"><table id="growthTable">
               <thead><tr><th>День</th><th>Время</th></tr></thead>
               <tbody></tbody>
-            </table>
+            </table></div>
             <p class="muted mono mt-8">* Отображаются ключевые вехи: 0, 30, 70, 140, 365</p>
           </div>
         </div>
