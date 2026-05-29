@@ -10,9 +10,16 @@ CREATE TABLE IF NOT EXISTS users (
   full_name   TEXT,                    -- original TG name (private)
   registered  INTEGER NOT NULL DEFAULT 0,  -- 0 tracked/hidden, 1 opted-in/public
   public      INTEGER NOT NULL DEFAULT 1,  -- 1 listed, 0 unlisted
-  photo_url   TEXT,                    -- R2 url of profile photo (optional)
+  photo_url   TEXT,                    -- R2 url of profile photo/video (optional)
+  media_bytes INTEGER NOT NULL DEFAULT 0,  -- size of this user's stored media (for cap accounting)
   strict      INTEGER NOT NULL DEFAULT 0,  -- 1 => use strict report parser (Denis)
   created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- key/value counters (e.g. 'media_bytes' = total R2 bytes stored, for the cap guard)
+CREATE TABLE IF NOT EXISTS meta (
+  k TEXT PRIMARY KEY,
+  v INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS entries (

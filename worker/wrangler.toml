@@ -27,12 +27,9 @@ database_name = "plank-today"
 database_id = "4d5af499-8ba5-497a-876c-d43972a31a94"
 
 # --- R2 (photos / voice files) ---
-# Enable R2 once in the dashboard (Storage & Databases > R2 > accept terms),
-# then: wrangler r2 bucket create plank-today-media
-# and UNCOMMENT this block + redeploy to turn on photo/video uploads.
-# [[r2_buckets]]
-# binding = "MEDIA"
-# bucket_name = "plank-today-media"
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "plank-today-media"
 
 # Daily reminder / re-activation cron (08:00 UTC). Handler is a stub for now.
 [triggers]
@@ -44,3 +41,9 @@ crons = ["0 8 * * *"]
 #   GROUP_CHAT_ID         - e.g. -1002335455108 (your supergroup)
 [vars]
 PUBLIC_BASE = "https://plank.today"
+# R2 storage guard (bytes). Hard cap below the 10 GB free tier; warn earlier.
+# TESTING: warn set to 5 MB to verify the alert fires on the first upload.
+# Revert R2_WARN_BYTES to 7516192768 (7 GB) after the test.
+R2_WARN_BYTES = "5242880"
+R2_CAP_BYTES = "9663676416"
+ADMIN_UID = "8607657267"

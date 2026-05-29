@@ -14,7 +14,7 @@ a{color:var(--fg)}
 .dot{display:inline-block;width:8px;height:8px;border-radius:999px;vertical-align:middle}
 .dot.active{background:#3ddc84}.dot.paused{background:#6a6a6a}
 .badge{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:13px;color:#cfcfcf}
-.hero{display:grid;grid-template-columns:1fr;gap:20px;margin-top:8px}
+.hero{display:grid;grid-template-columns:1fr;gap:20px;margin-top:8px;align-items:start}
 @media(min-width:760px){.hero{grid-template-columns:1.1fr .9fr}}
 .bignum{font-size:clamp(56px,12vw,104px);font-weight:900;line-height:1;letter-spacing:-.02em}
 .statline{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px}
@@ -157,10 +157,14 @@ export async function renderProfile(env, slug) {
   const statusCls = st.active ? "active" : "paused";
   const statusRu = st.active ? "практикует сейчас" : `пауза ${st.daysSince} дн.`;
   const s = shareLinks(env, slug, fname, st);
-  const og = `<meta property="og:image" content="${env.PUBLIC_BASE}/api/card/${esc(slug)}.png"/>`;
+  const og = ""; // TODO: dynamic OG image (/api/card/<slug>.png) — reposts show title+description until built
   const cbLine = st.comebackCount
     ? `<div class="stat"><span class="muted">Возвращений</span><br><b>${st.comebackCount}</b></div>` : "";
-  const avatar = u.photo_url ? `<img class="avatar" src="${esc(u.photo_url)}" alt=""/> ` : "";
+  const avatar = u.photo_url
+    ? (u.photo_url.endsWith(".mp4")
+        ? `<video class="avatar" src="${esc(u.photo_url)}" autoplay loop muted playsinline></video> `
+        : `<img class="avatar" src="${esc(u.photo_url)}" alt=""/> `)
+    : "";
   const badges = u.public ? await rankBadges(env, u.uid) : "";
   return head(`${fname} — Планка +1%`, `${fmt(st.start)} → ${fmt(st.current)}, ×${st.multiplier} за ${st.reports} дней.`, og) + `
 <div class="container">
@@ -190,12 +194,6 @@ export async function renderProfile(env, slug) {
       ${svgChart(st)}
       <p class="muted" style="font-size:13px;margin-bottom:0">⬤ твой путь · <span style="color:#3ddc84">▱ прогноз +1%/день на 70 дней вперёд</span></p>
     </div>
-  </div>
-  <h2 style="margin-top:40px;font-size:18px">Карточка для соцсетей</h2>
-  <div class="sharecard">
-    <div class="num">${fmt(st.current)}</div>
-    <div class="meta">${esc(fname)} · ${fmt(st.start)} → ${fmt(st.current)} · ×${st.multiplier}</div>
-    <div class="foot">plank.today · планка +1% каждый день</div>
   </div>
 </div></body></html>`;
 }

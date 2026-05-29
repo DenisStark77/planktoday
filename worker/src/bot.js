@@ -123,19 +123,18 @@ async function handleDM(env, msg) {
   const text = msg.text || "";
   const fullName = fullNameOf(msg.from);
 
-  // media step
-  if (await getStep(env, uid) === "awaiting_photo") {
-    if ((msg.photo || msg.video_note || msg.video) && !env.MEDIA) {
-      await clearStep(env, uid);
-      return sendMessage(env, chatId, "Загрузка фото/видео пока недоступна — добавим скоро 🙏 Твоя страница уже готова.");
-    }
-    if (msg.photo || msg.video_note || msg.video) return handleMedia(env, msg, uid, chatId);
-    if (text.startsWith("/skip")) {
-      await clearStep(env, uid);
-      const u = await getUserByUid(env, uid);
-      const base = env.PUBLIC_BASE || "https://plank.today";
-      return sendMessage(env, chatId, `Ок! Твоя страница готова:\n${base}/u/${u.slug}`);
-    }
+  // Any photo / video-circle in a DM (any time) updates the profile media.
+  if (msg.photo || msg.video_note || msg.video) {
+    await ensureUser(env, uid, fullName);
+    await clearStep(env, uid);
+    return handleMedia(env, msg, uid, chatId);
+  }
+  // skip media prompt after claiming
+  if (await getStep(env, uid) === "awaiting_photo" && text.startsWith("/skip")) {
+    await clearStep(env, uid);
+    const u = await getUserByUid(env, uid);
+    const base = env.PUBLIC_BASE || "https://plank.today";
+    return sendMessage(env, chatId, `Ок! Твоя страница готова:\n${base}/u/${u.slug}`);
   }
 
   if (text.startsWith("/start")) {
@@ -206,18 +205,56 @@ async function handleCallback(env, cq) {
   }
 }
 
+function fmtBytes(n) {
+  if (n >= 1073741824) return (n / 1073741824).toFixed(2) + " ГБ";
+  if (n >= 1048576) return (n / 1048576).toFixed(1) + " МБ";
+  if (n >= 1024) return (n / 1024).toFixed(0) + " КБ";
+  return n + " Б";
+}
+
+async function notifyAdmin(env, text) {
+  if (env.ADMIN_UID) await sendMessage(env, env.ADMIN_UID, text);
+}
+
 async function handleMedia(env, msg, uid, chatId) {
+  if (!env.MEDIA) return sendMessage(env, chatId, "Загрузка медиа пока недоступна 🙏");
+
   let fileId, ext, ct;
-  if (msg.photo) { fileId = msg.photo[msg.photo.length - 1].file_id; ext = "jpg"; ct = "image/jpeg"; }
-  else if (msg.video_note) { fileId = msg.video_note.file_id; ext = "mp4"; ct = "video/mp4"; }
+  if (msg.video_note) { fileId = msg.video_note.file_id; ext = "mp4"; ct = "video/mp4"; }
   else if (msg.video) { fileId = msg.video.file_id; ext = "mp4"; ct = "video/mp4"; }
+  else if (msg.photo) { fileId = msg.photo[msg.photo.length - 1].file_id; ext = "jpg"; ct = "image/jpeg"; }
+  else return;
+
   const dl = await downloadFile(env, fileId);
   if (!dl) return sendMessage(env, chatId, "Не получилось скачать файл, попробуй ещё раз 🙏");
+  const newSize = dl.body.byteLength;
+
+  // --- storage cap accounting (per-user delta so overwrites don't inflate the total) ---
+  const cap = parseInt(env.R2_CAP_BYTES || "0", 10);
+  const warn = parseInt(env.R2_WARN_BYTES || "0", 10);
+  const u0 = await getUserByUid(env, uid);
+  const oldSize = (u0 && u0.media_bytes) || 0;
+  const totalRow = await env.DB.prepare("SELECT v FROM meta WHERE k='media_bytes'").first();
+  const curTotal = totalRow ? totalRow.v : 0;
+  const newTotal = curTotal - oldSize + newSize;
+
+  if (cap && newTotal > cap) {
+    await notifyAdmin(env, `🛑 Хранилище R2 достигло лимита ${fmtBytes(cap)}. Загрузка ${fmtBytes(newSize)} от ${(u0 && u0.first_name) || uid} отклонена. Загрузки на паузе.`);
+    return sendMessage(env, chatId, "Хранилище временно заполнено — загрузка на паузе. Мы уже знаем 🙏");
+  }
+
   const key = `u/${uid}.${ext}`;
   await env.MEDIA.put(key, dl.body, { httpMetadata: { contentType: ct } });
   const base = env.PUBLIC_BASE || "https://plank.today";
-  await setPhoto(env, uid, `${base}/api/media/${key}`);
-  await clearStep(env, uid);
+  await env.DB.prepare("UPDATE users SET photo_url=?, media_bytes=? WHERE uid=?")
+    .bind(`${base}/api/media/${key}`, newSize, uid).run();
+  await env.DB.prepare("UPDATE meta SET v=? WHERE k='media_bytes'").bind(newTotal).run();
+
+  // warn once when crossing the warn threshold
+  if (warn && curTotal < warn && newTotal >= warn) {
+    await notifyAdmin(env, `⚠️ Хранилище медиа: ${fmtBytes(newTotal)} из ${fmtBytes(cap)} (пройден порог ${fmtBytes(warn)}).`);
+  }
+
   const u = await getUserByUid(env, uid);
   return sendMessage(env, chatId, `Добавил на твою страницу ✅\n${base}/u/${u.slug}`);
 }
