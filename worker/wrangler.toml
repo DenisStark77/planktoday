@@ -50,3 +50,6 @@ PUBLIC_BASE = "https://plank.today"
 R2_WARN_BYTES = "7516192768"
 R2_CAP_BYTES = "9663676416"
 ADMIN_UID = "8607657267"
+# Anonymous-admin attribution: anonymous group posts (sender_chat === group) are
+# credited to this uid (an admin who can't disable anonymity). Empty = ignore them.
+ANON_ADMIN_UID = ""

@@ -107,11 +107,24 @@ export async function handleUpdate(update, env) {
 }
 
 async function handleGroup(env, msg) {
-  if (!msg.from || msg.from.is_bot) return;
-  const uid = String(msg.from.id);
   const text = msg.text || msg.caption || "";
   if (!text) return;
-  const user = await ensureUser(env, uid, fullNameOf(msg.from), msg.from.language_code); // tracked, hidden
+
+  // Resolve the author. Anonymous admins post AS the group (sender_chat === chat)
+  // and Telegram hides which admin it was — attribute such posts to a configured
+  // fallback admin (env.ANON_ADMIN_UID), e.g. an admin who can't disable anonymity.
+  let user;
+  const anonAdmin = msg.sender_chat && msg.chat && msg.sender_chat.id === msg.chat.id;
+  if (anonAdmin) {
+    if (!env.ANON_ADMIN_UID) return;
+    user = await getUserByUid(env, String(env.ANON_ADMIN_UID));
+    if (!user) return;
+  } else {
+    if (!msg.from || msg.from.is_bot) return;
+    user = await ensureUser(env, String(msg.from.id), fullNameOf(msg.from), msg.from.language_code);
+  }
+  const uid = user.uid;
+
   const sec = extractReport(text, !!user.strict);
   if (sec == null) return;                       // not a report -> ignore silently
   const day = dayFromUnix(msg.date);
