@@ -28,6 +28,14 @@ export function fmt(sec) {
   return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
 }
 
+/** Russian plural: pluralRu(274,'день','дня','дней') -> 'дня'. */
+export function pluralRu(n, one, few, many) {
+  const m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && !(m100 >= 12 && m100 <= 14)) return few;
+  return many;
+}
+
 export async function getUserByUid(env, uid) {
   return env.DB.prepare("SELECT * FROM users WHERE uid=?").bind(String(uid)).first();
 }

@@ -1,5 +1,5 @@
 /** Server-rendered profile + leaderboard HTML (live from D1). */
-import { fmt, getUserBySlug, getEntries, computeStats, listPublicWithStats } from "./db.js";
+import { fmt, pluralRu, getUserBySlug, getEntries, computeStats, listPublicWithStats } from "./db.js";
 
 const CSS = `
 :root{--bg:#0a0a0a;--fg:#f2f2f2;--muted:#9b9b9b;--line:#1f1f1f;--maxw:980px}
@@ -172,7 +172,7 @@ export async function renderProfile(env, slug) {
         : `<img class="avatar" src="${esc(u.photo_url)}" alt=""/> `)
     : "";
   const badges = u.public ? await rankBadges(env, u.uid) : "";
-  return head(`${fname} — Планка +1%`, `${fmt(st.start)} → ${fmt(st.current)}, ×${st.multiplier} за ${st.reports} дней.`, og) + `
+  return head(`${fname} — Планка +1%`, `${fmt(st.start)} → ${fmt(st.current)}, ×${st.multiplier} за ${st.reports} ${pluralRu(st.reports, "день", "дня", "дней")}.`, og) + `
 <div class="container">
   <div class="title-row"><a class="brand" href="/">PLANK +1%</a><span class="muted">/ профиль</span></div>
   <div class="hero">
