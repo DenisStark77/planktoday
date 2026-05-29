@@ -17,7 +17,7 @@ export async function renderCard(env, slug) {
 
   const name = esc(u.first_name);
   const cur = fmt(st.current);
-  const meta = `${fmt(st.start)} → ${cur} · ×${st.multiplier} · ${st.reports} ${pluralRu(st.reports, "день", "дня", "дней")}`;
+  const meta = `${fmt(st.start)} → ${fmt(st.peak)} · ×${st.multiplier} · ${st.reports} ${pluralRu(st.reports, "день", "дня", "дней")}`;
 
   const html = `
   <div style="display:flex;flex-direction:column;width:1200px;height:630px;background:#faf7f0;color:#15110a;padding:80px;font-family:Inter;justify-content:space-between;">

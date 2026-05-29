@@ -104,7 +104,7 @@ function svgChart(stats, w = 560, h = 440, pad = 30) {
 function shareLinks(env, slug, fname, st) {
   const base = env.PUBLIC_BASE || "https://plank.today";
   const url = `${base}/u/${slug}`;
-  const txt = `${fname}: планка ${fmt(st.start)} → ${fmt(st.current)} (×${st.multiplier}). Маленький шаг каждый день. ${base}`;
+  const txt = `${fname}: планка ${fmt(st.start)} → ${fmt(st.peak)} (×${st.multiplier}). Маленький шаг каждый день. ${base}`;
   const e = encodeURIComponent;
   return {
     x: `https://twitter.com/intent/tweet?text=${e(txt)}`,
@@ -176,7 +176,7 @@ export async function renderProfile(env, slug) {
         : `<img class="avatar" src="${esc(u.photo_url)}" alt=""/> `)
     : "";
   const badges = u.public ? await rankBadges(env, u.uid) : "";
-  return head(`${fname} — Планка +1%`, `${fmt(st.start)} → ${fmt(st.current)}, ×${st.multiplier} за ${st.reports} ${pluralRu(st.reports, "день", "дня", "дней")}.`, og) + `
+  return head(`${fname} — Планка +1%`, `${fmt(st.start)} → ${fmt(st.peak)}, ×${st.multiplier} за ${st.reports} ${pluralRu(st.reports, "день", "дня", "дней")}.`, og) + `
 <div class="container">
   <div class="title-row"><a class="brand" href="/">PLANK +1%</a><span class="muted">/ профиль</span></div>
   <div class="hero">

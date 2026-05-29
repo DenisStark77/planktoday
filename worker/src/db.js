@@ -129,6 +129,9 @@ export function computeStats(entries, now = new Date()) {
   const series = entries.map((e) => [e.day, e.seconds]);
   const [startDate, start] = series[0];
   const [lastDate, current] = series[series.length - 1];
+  // Lifetime peak — your achievement is the best you've ever held. An off day
+  // shouldn't shrink your growth multiplier.
+  const peak = Math.max(...series.map((p) => p[1]));
 
   // longest consecutive-day streak
   let best = 1, cur = 1;
@@ -154,8 +157,8 @@ export function computeStats(entries, now = new Date()) {
   const todayStr = now.toISOString().slice(0, 10);
   const daysSince = daysBetween(lastDate, todayStr);
   return {
-    start, current, startDate, lastDate,
-    multiplier: start ? Math.round((current / start) * 100) / 100 : null,
+    start, current, peak, startDate, lastDate,
+    multiplier: start ? Math.round((peak / start) * 100) / 100 : null,
     reports: series.length,
     streak: best,
     comeback,
