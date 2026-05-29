@@ -143,9 +143,8 @@ async function rankBadges(env, uid) {
     if (idx >= 0) placements.push({ b, rank: idx + 1 });
   }
   placements.sort((a, c) => a.rank - c.rank);
-  const medals = { 1: "🥇", 2: "🥈", 3: "🥉" };
   const items = placements.slice(0, 3).map(({ b, rank }) =>
-    `<a class="rankbadge" href="/board?cat=${b.key}">${medals[rank] || "№" + rank} · ${b.name}</a>`).join("");
+    `<a class="rankbadge" href="/board?cat=${b.key}"><b>#${rank}</b> ${b.name}</a>`).join("");
   return items ? `<div class="badges">${items}</div>` : "";
 }
 
