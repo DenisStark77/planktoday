@@ -9,6 +9,7 @@
  */
 import { handleUpdate } from "./bot.js";
 import { renderLeaderboard, renderProfile, notFound } from "./render.js";
+import { renderCard } from "./card.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -31,6 +32,10 @@ export default {
         ctx.waitUntil(handleUpdate(update, env).catch((e) => console.error("update error", e)));
         return new Response("ok");
       }
+
+      // dynamic OG share card
+      const card = pathname.match(/^\/api\/card\/([a-z0-9-]+)\.png$/i);
+      if (card) return renderCard(env, card[1]);
 
       // serve uploaded media from R2
       const mm = pathname.match(/^\/api\/media\/(.+)$/);

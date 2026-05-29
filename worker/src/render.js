@@ -159,7 +159,11 @@ export async function renderProfile(env, slug) {
   const statusCls = st.active ? "active" : "paused";
   const statusRu = st.active ? "практикует сейчас" : `пауза ${st.daysSince} дн.`;
   const s = shareLinks(env, slug, fname, st);
-  const og = ""; // TODO: dynamic OG image (/api/card/<slug>.png) — reposts show title+description until built
+  const og =
+    `<meta property="og:image" content="${env.PUBLIC_BASE}/api/card/${esc(slug)}.png"/>` +
+    `<meta property="og:image:width" content="1200"/>` +
+    `<meta property="og:image:height" content="630"/>` +
+    `<meta name="twitter:card" content="summary_large_image"/>`;
   const cbLine = st.comebackCount
     ? `<div class="stat"><span class="muted">Возвращений</span><br><b>${st.comebackCount}</b></div>` : "";
   const avatar = u.photo_url

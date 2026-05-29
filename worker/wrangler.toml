@@ -2,6 +2,11 @@ name = "plank-today"
 main = "src/index.js"
 compatibility_date = "2025-05-01"
 
+# Import .ttf files as binary ArrayBuffers (for the OG card font)
+[[rules]]
+type = "Data"
+globs = ["**/*.ttf"]
+
 # Fill account_id after `wrangler whoami` (or it's in your dashboard URL).
 account_id = "05ac0ce5e11911e97af46358bcd0553f"
 
