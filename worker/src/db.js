@@ -52,17 +52,49 @@ async function uniqueSlug(env, base) {
   return slug;
 }
 
-/** Create a tracked (hidden) user if not present. Returns the user row. */
-export async function ensureUser(env, uid, fullName) {
+export function normLang(code) {
+  if (!code) return null;
+  const c = String(code).slice(0, 2).toLowerCase();
+  return ["ru", "en", "es", "ar"].includes(c) ? c : "en";
+}
+
+/** Create a tracked (hidden) user if not present. Returns the user row.
+ * langCode (Telegram from.language_code) is stored once if not already set. */
+export async function ensureUser(env, uid, fullName, langCode) {
   uid = String(uid);
+  const lang = normLang(langCode);
   let u = await getUserByUid(env, uid);
-  if (u) return u;
+  if (u) {
+    if (lang && !u.lang) {
+      await env.DB.prepare("UPDATE users SET lang=? WHERE uid=?").bind(lang, uid).run();
+      u.lang = lang;
+    }
+    return u;
+  }
   const fn = firstName(fullName || uid);
   const slug = await uniqueSlug(env, translit(fn));
   await env.DB.prepare(
-    "INSERT INTO users (uid, slug, first_name, full_name, registered, public, strict) VALUES (?,?,?,?,0,1,0)"
-  ).bind(uid, slug, fn, fullName || fn).run();
+    "INSERT INTO users (uid, slug, first_name, full_name, registered, public, strict, lang) VALUES (?,?,?,?,0,1,0,?)"
+  ).bind(uid, slug, fn, fullName || fn, lang).run();
   return getUserByUid(env, uid);
+}
+
+/** Record a referral once (first-touch wins; never self-refer). */
+export async function setReferral(env, uid, referrerUid, source) {
+  if (referrerUid && String(referrerUid) === String(uid)) referrerUid = null;
+  await env.DB.prepare(
+    "UPDATE users SET referrer=COALESCE(referrer, ?), ref_source=COALESCE(ref_source, ?) WHERE uid=?"
+  ).bind(referrerUid, source || null, String(uid)).run();
+}
+
+/** uid -> count of registered users they referred. */
+export async function inviteCounts(env) {
+  const r = await env.DB.prepare(
+    "SELECT referrer AS uid, COUNT(*) AS n FROM users WHERE referrer IS NOT NULL AND registered=1 GROUP BY referrer"
+  ).all();
+  const map = {};
+  for (const row of (r.results || [])) map[row.uid] = row.n;
+  return map;
 }
 
 export async function upsertEntry(env, uid, day, seconds, source, messageId = null) {
@@ -146,7 +178,9 @@ export async function listPublicWithStats(env) {
   ).bind(...users.map((u) => u.uid)).all()).results || [];
   const byUid = {};
   for (const e of allEntries) (byUid[e.uid] ||= []).push(e);
+  const invites = await inviteCounts(env);
   return users
     .map((u) => ({ user: u, stats: computeStats(byUid[u.uid] || []) }))
-    .filter((x) => x.stats);
+    .filter((x) => x.stats)
+    .map((x) => { x.stats.invites = invites[x.user.uid] || 0; return x; });
 }

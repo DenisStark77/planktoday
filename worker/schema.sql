@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS users (
   photo_url   TEXT,                    -- R2 url of profile photo/video (optional)
   media_bytes INTEGER NOT NULL DEFAULT 0,  -- size of this user's stored media (for cap accounting)
   strict      INTEGER NOT NULL DEFAULT 0,  -- 1 => use strict report parser (Denis)
+  referrer    TEXT,                    -- uid of the user who referred them (via ?start=u_<slug>)
+  ref_source  TEXT,                    -- 'profile' | 'board' | 'site' | null
+  lang        TEXT,                    -- preferred language code (from Telegram language_code)
   created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

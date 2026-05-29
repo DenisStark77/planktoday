@@ -25,6 +25,7 @@ a{color:var(--fg)}
 .cta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
 .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid #f2f2f2;background:#f2f2f2;color:#0a0a0a;padding:11px 15px;border-radius:12px;font-weight:800;text-decoration:none;font-size:14px}
 .btn.ghost{background:transparent;color:var(--fg);border-color:#2a2a2a}
+.btn.start{background:#3ddc84;border-color:#3ddc84;color:#06210f}
 .sharecard{background:#faf7f0;color:#111;border-radius:16px;padding:26px 28px;max-width:520px;border:1px solid #e6e0d4}
 .sharecard .num{font-size:64px;font-weight:900;line-height:1}
 .sharecard .meta{color:#555;font-weight:700;margin-top:6px}
@@ -132,6 +133,9 @@ const BOARDS = [
   { key: "firststep", name: "Первый шаг",
     desc: "Самое трудное — это первый раз встать в планку.",
     metric: (s) => -(Date.now() - Date.parse(s.startDate)), render: (s) => s.startDate },
+  { key: "invites", name: "Приглашения",
+    desc: "Сколько практикующих ты привёл. Рост сообщества — общее дело.",
+    metric: (s) => s.invites || 0, render: (s) => `${s.invites || 0}` },
 ];
 
 /** This user's RELATIVELY-best placements: the boards where they rank highest
@@ -190,7 +194,10 @@ export async function renderProfile(env, slug) {
       </div>
       ${badges}
       <div class="cta-row">
-        <a class="btn" href="${s.x}" target="_blank" rel="noopener">Поделиться в X</a>
+        <a class="btn start" href="https://t.me/plank_today_bot?start=u_${esc(slug)}" target="_blank" rel="noopener">Начать свою планку →</a>
+      </div>
+      <div class="cta-row">
+        <a class="btn ghost" href="${s.x}" target="_blank" rel="noopener">Поделиться в X</a>
         <a class="btn ghost" href="${s.li}" target="_blank" rel="noopener">LinkedIn</a>
         <a class="btn ghost" href="${s.tg}" target="_blank" rel="noopener">Telegram</a>
       </div>
@@ -231,6 +238,7 @@ export async function renderLeaderboard(env, activeCat) {
   <a class="brand" href="/">PLANK +1%</a>
   <h1>Рейтинг участников</h1>
   <p class="muted">${rows.length} в рейтинге · <span class="dot active"></span> ${nActive} активны · <span class="dot paused"></span> ${rows.length - nActive} на паузе</p>
+  <div class="cta-row" style="margin:14px 0"><a class="btn start" href="https://t.me/plank_today_bot?start=board" target="_blank" rel="noopener">Начать свою планку →</a></div>
   ${empty}
   <div class="tabs">${tabs}</div>
   ${descs}

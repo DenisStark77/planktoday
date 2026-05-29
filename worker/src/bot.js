@@ -2,9 +2,23 @@
 import { extractReport } from "./parser.js";
 import { sendMessage, answerCallback, downloadFile } from "./telegram.js";
 import {
-  ensureUser, getUserByUid, getEntries, upsertEntry, registerUser, setPhoto,
-  computeStats, fmt,
+  ensureUser, getUserByUid, getUserBySlug, getEntries, upsertEntry, registerUser, setPhoto,
+  setReferral, computeStats, fmt,
 } from "./db.js";
+
+const GROUP_INVITE = "https://t.me/+oF9GH9olL5JiYWFk"; // RU daily community
+
+async function applyReferral(env, uid, param) {
+  if (!param) return;
+  if (param.startsWith("u_")) {
+    const ref = await getUserBySlug(env, param.slice(2));
+    if (ref) await setReferral(env, uid, ref.uid, "profile");
+  } else if (param === "board") {
+    await setReferral(env, uid, null, "board");
+  } else if (param === "site") {
+    await setReferral(env, uid, null, "site");
+  }
+}
 
 const esc = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -97,7 +111,7 @@ async function handleGroup(env, msg) {
   const uid = String(msg.from.id);
   const text = msg.text || msg.caption || "";
   if (!text) return;
-  const user = await ensureUser(env, uid, fullNameOf(msg.from)); // tracked, hidden
+  const user = await ensureUser(env, uid, fullNameOf(msg.from), msg.from.language_code); // tracked, hidden
   const sec = extractReport(text, !!user.strict);
   if (sec == null) return;                       // not a report -> ignore silently
   const day = dayFromUnix(msg.date);
@@ -125,7 +139,7 @@ async function handleDM(env, msg) {
 
   // Any photo / video-circle in a DM (any time) updates the profile media.
   if (msg.photo || msg.video_note || msg.video) {
-    await ensureUser(env, uid, fullName);
+    await ensureUser(env, uid, fullName, msg.from.language_code);
     await clearStep(env, uid);
     return handleMedia(env, msg, uid, chatId);
   }
@@ -138,7 +152,9 @@ async function handleDM(env, msg) {
   }
 
   if (text.startsWith("/start")) {
-    const u = await ensureUser(env, uid, fullName);
+    const param = text.split(/\s+/)[1] || "";
+    await ensureUser(env, uid, fullName, msg.from.language_code);
+    await applyReferral(env, uid, param);
     const entries = await getEntries(env, uid);
     if (entries.length) return showClaimCard(env, chatId, uid);
     await setStep(env, uid, "awaiting_first_time");
@@ -149,7 +165,7 @@ async function handleDM(env, msg) {
   if (await getStep(env, uid) === "awaiting_first_time") {
     const sec = onboardSeconds(text);
     if (!sec) return sendMessage(env, chatId, "Не понял время 🤔 Пришли в формате <b>0:30</b> или просто <b>30</b> (секунды).");
-    await ensureUser(env, uid, fullName);
+    await ensureUser(env, uid, fullName, msg.from.language_code);
     await upsertEntry(env, uid, new Date().toISOString().slice(0, 10), sec, "dm");
     await clearStep(env, uid);
     return showClaimCard(env, chatId, uid, true);
@@ -191,7 +207,7 @@ async function handleCallback(env, cq) {
   const data = cq.data;
   const chatId = cq.message?.chat?.id;
   if (data === "pub" || data === "priv") {
-    await ensureUser(env, uid, fullNameOf(cq.from));
+    await ensureUser(env, uid, fullNameOf(cq.from), cq.from.language_code);
     await registerUser(env, uid, data === "pub");
     const u = await getUserByUid(env, uid);
     const base = env.PUBLIC_BASE || "https://plank.today";
@@ -201,7 +217,7 @@ async function handleCallback(env, cq) {
       : "Сохранено как приватная страница (не в рейтинге).";
     await setStep(env, uid, "awaiting_photo");
     return sendMessage(env, chatId,
-      `${where}\n\nТвоя ссылка:\n${base}/u/${u.slug}\n\n📸 Хочешь оживить страницу? Пришли мне фото или видео-кружок — добавлю на профиль. Или напиши /skip.`);
+      `${where}\n\nТвоя ссылка:\n${base}/u/${u.slug}\n\n👥 Ежедневное сообщество (на русском): ${GROUP_INVITE}\n\n📸 Хочешь оживить страницу? Пришли фото или видео-кружок. Или напиши /skip.`);
   }
 }
 
