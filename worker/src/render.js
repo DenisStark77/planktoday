@@ -14,7 +14,9 @@ a{color:var(--fg)}
 .dot{display:inline-block;width:8px;height:8px;border-radius:999px;vertical-align:middle}
 .dot.active{background:#3ddc84}.dot.paused{background:#6a6a6a}
 .badge{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:13px;color:#cfcfcf}
-.hero{display:grid;grid-template-columns:1fr;gap:20px;margin-top:8px;align-items:start}
+.hero{display:grid;grid-template-columns:1fr;gap:20px;margin-top:8px;align-items:stretch}
+.chartcard{display:flex;flex-direction:column}
+.chartcard .chart{flex:1;min-height:240px;width:100%}
 @media(min-width:760px){.hero{grid-template-columns:1.1fr .9fr}}
 .bignum{font-size:clamp(56px,12vw,104px);font-weight:900;line-height:1;letter-spacing:-.02em}
 .statline{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px}
@@ -87,7 +89,7 @@ function svgChart(stats, w = 560, h = 440, pad = 30) {
   const projPath = proj.map(([x, y]) => `${X(x).toFixed(1)},${Y(y).toFixed(1)}`).join(" ");
   const dots = pts.map(([x, y]) => `<circle cx="${X(x).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="2" fill="#f2f2f2"/>`).join("");
   const tx = X(todayX).toFixed(1);
-  return `<svg viewBox="0 0 ${w} ${h}" class="chart" role="img" aria-label="Рост времени планки">
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="chart" role="img" aria-label="Рост времени планки">
 <line x1="${tx}" y1="${pad - 8}" x2="${tx}" y2="${h - pad}" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="2 3"/>
 <polyline fill="none" stroke="#3ddc84" stroke-width="2" stroke-dasharray="5 4" points="${projPath}"/>${dots}
 <circle cx="${tx}" cy="${Y(current).toFixed(1)}" r="3.4" fill="#3ddc84"/>
@@ -189,7 +191,7 @@ export async function renderProfile(env, slug) {
         <a class="btn ghost" href="${s.tg}" target="_blank" rel="noopener">Telegram</a>
       </div>
     </div>
-    <div class="card">
+    <div class="card chartcard">
       <h2 style="margin-top:0;font-size:18px">Рост по дням</h2>
       ${svgChart(st)}
       <p class="muted" style="font-size:13px;margin-bottom:0">⬤ твой путь · <span style="color:#3ddc84">▱ прогноз +1%/день на 70 дней вперёд</span></p>
