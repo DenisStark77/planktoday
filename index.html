@@ -429,9 +429,8 @@
         const tr=document.createElement('tr');
         const td1=document.createElement('td');
         const td2=document.createElement('td');
-        td1.setAttribute('data-i18n-static','math.table.day');
-        td1.textContent=d + (document.documentElement.lang==='ar'?' يوم':' день').replace('day','');
-        td1.textContent = d + ' ' + (document.documentElement.lang==='ar'?'يوم':'день');
+        // Day column header is already localized; show just the number to stay language-neutral.
+        td1.textContent=String(d);
         td2.textContent=fmt(by(d));
         tr.appendChild(td1);tr.appendChild(td2);tBody.appendChild(tr);
       });
