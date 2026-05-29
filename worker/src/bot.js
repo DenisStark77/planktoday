@@ -3,8 +3,14 @@ import { extractReport } from "./parser.js";
 import { sendMessage, answerCallback, downloadFile } from "./telegram.js";
 import {
   ensureUser, getUserByUid, getUserBySlug, getEntries, upsertEntry, registerUser, setPhoto,
-  setReferral, computeStats, fmt,
+  setReferral, computeStats, fmt, normLang,
 } from "./db.js";
+import { t, daysStr, langName, welcomeFallback } from "./i18n.js";
+
+/** Resolve a user's language for bot messages. */
+function langOf(u, from) {
+  return (u && u.lang) || normLang(from && from.language_code) || "ru";
+}
 
 const GROUP_INVITE = "https://t.me/+oF9GH9olL5JiYWFk"; // RU daily community
 
@@ -34,28 +40,16 @@ function dayFromUnix(sec) {
 // --- "welcome back" greeting for returners after a long pause ---
 const RETURN_GREET_AFTER_DAYS = 14;
 
-const WELCOME_FALLBACKS = [
-  (n) => `С возвращением, ${n}! 🙌 Рад снова видеть тебя в планке.`,
-  (n) => `${n}, ты вернулся! 💪 Снова начать — это и есть победа.`,
-  (n) => `Снова в строю, ${n}! 🔥 Маленький шаг — уже большой.`,
-  (n) => `Здорово, что ты здесь, ${n}! 🌱 Продолжаем расти.`,
-  (n) => `С возвращением! 👏 Пауза — не провал. Ты снова в деле, ${n}.`,
-];
-
-function pickFallback(name) {
-  return WELCOME_FALLBACKS[Math.floor(Math.random() * WELCOME_FALLBACKS.length)](name);
-}
-
-async function welcomeBack(env, name, gapDays, currentSec) {
-  const fallback = pickFallback(name);
+async function welcomeBack(env, lang, name, gapDays, currentSec) {
+  const fallback = welcomeFallback(lang, name, gapDays + currentSec); // vary by index
   if (!env.AI) return fallback;
   try {
     const prompt =
-      `Ты — тёплый, поддерживающий голос сообщества «Планка +1%», где люди ежедневно стоят в планке ` +
-      `и увеличивают время на 1% в день. Участник ${name} вернулся после паузы (${gapDays} дн.) ` +
-      `и снова сделал планку ${fmt(currentSec)}. Напиши ОДНУ короткую тёплую фразу-приветствие на русском ` +
-      `(до 12 слов), без осуждения за пропуск, обратись по имени, добавь 1–2 эмодзи. ` +
-      `Верни только саму фразу, без кавычек.`;
+      `You are the warm, supportive voice of the "Plank +1%" community, where people hold a plank ` +
+      `daily and add 1% to their time each day. Member ${name} returned after a ${gapDays}-day break ` +
+      `and did a ${fmt(currentSec)} plank. Write ONE short warm welcome-back phrase in ${langName(lang)} ` +
+      `(max 12 words), no judgment about the pause, address them by name, add 1–2 emoji. ` +
+      `Return only the phrase, no quotes.`;
     const r = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
       messages: [{ role: "user", content: prompt }],
       max_tokens: 60,
@@ -138,7 +132,7 @@ async function handleGroup(env, msg) {
   if (prevDay && prevDay < day) {
     const gap = Math.round((Date.parse(day) - Date.parse(prevDay)) / 86400000);
     if (gap >= RETURN_GREET_AFTER_DAYS) {
-      const greeting = await welcomeBack(env, user.first_name, gap, sec);
+      const greeting = await welcomeBack(env, langOf(user), user.first_name, gap, sec);
       if (greeting) await sendMessage(env, msg.chat.id, greeting, { reply_to_message_id: msg.message_id });
     }
   }
@@ -148,68 +142,59 @@ async function handleDM(env, msg) {
   const uid = String(msg.from.id);
   const chatId = msg.chat.id;
   const text = msg.text || "";
-  const fullName = fullNameOf(msg.from);
+  const u = await ensureUser(env, uid, fullNameOf(msg.from), msg.from.language_code);
+  const lang = langOf(u, msg.from);
+  const base = env.PUBLIC_BASE || "https://plank.today";
 
   // Any photo / video-circle in a DM (any time) updates the profile media.
   if (msg.photo || msg.video_note || msg.video) {
-    await ensureUser(env, uid, fullName, msg.from.language_code);
     await clearStep(env, uid);
-    return handleMedia(env, msg, uid, chatId);
+    return handleMedia(env, msg, uid, chatId, lang);
   }
   // skip media prompt after claiming
   if (await getStep(env, uid) === "awaiting_photo" && text.startsWith("/skip")) {
     await clearStep(env, uid);
-    const u = await getUserByUid(env, uid);
-    const base = env.PUBLIC_BASE || "https://plank.today";
-    return sendMessage(env, chatId, `Ок! Твоя страница готова:\n${base}/u/${u.slug}`);
+    return sendMessage(env, chatId, t(lang, "skip_done", { url: `${base}/u/${u.slug}` }));
   }
 
   if (text.startsWith("/start")) {
-    const param = text.split(/\s+/)[1] || "";
-    await ensureUser(env, uid, fullName, msg.from.language_code);
-    await applyReferral(env, uid, param);
-    const entries = await getEntries(env, uid);
-    if (entries.length) return showClaimCard(env, chatId, uid);
+    await applyReferral(env, uid, text.split(/\s+/)[1] || "");
+    if ((await getEntries(env, uid)).length) return showClaimCard(env, chatId, uid, false, lang);
     await setStep(env, uid, "awaiting_first_time");
-    return sendMessage(env, chatId,
-      "Привет! 🙌 Это <b>Планка +1%</b>.\n\nВстань в планку и продержись сколько сможешь — потом пришли результат: например <b>0:30</b> или просто <b>30</b> (секунды). Это будет твой День 1.");
+    return sendMessage(env, chatId, t(lang, "onboard"));
   }
 
   if (await getStep(env, uid) === "awaiting_first_time") {
     const sec = onboardSeconds(text);
-    if (!sec) return sendMessage(env, chatId, "Не понял время 🤔 Пришли в формате <b>0:30</b> или просто <b>30</b> (секунды).");
-    await ensureUser(env, uid, fullName, msg.from.language_code);
+    if (!sec) return sendMessage(env, chatId, t(lang, "bad_time"));
     await upsertEntry(env, uid, new Date().toISOString().slice(0, 10), sec, "dm");
     await clearStep(env, uid);
-    return showClaimCard(env, chatId, uid, true);
+    return showClaimCard(env, chatId, uid, true, lang);
   }
 
-  // default: show card if we have data, else start onboarding
-  await ensureUser(env, uid, fullName);
-  if ((await getEntries(env, uid)).length) return showClaimCard(env, chatId, uid);
+  if ((await getEntries(env, uid)).length) return showClaimCard(env, chatId, uid, false, lang);
   await setStep(env, uid, "awaiting_first_time");
-  return sendMessage(env, chatId, "Пришли своё текущее время в планке — например <b>0:30</b> или <b>30</b>.");
+  return sendMessage(env, chatId, t(lang, "ask_time"));
 }
 
-async function showClaimCard(env, chatId, uid, justStarted = false) {
+async function showClaimCard(env, chatId, uid, justStarted = false, lang = "ru") {
   const u = await getUserByUid(env, uid);
   const st = computeStats(await getEntries(env, uid));
   const base = env.PUBLIC_BASE || "https://plank.today";
   if (u.registered) {
     return sendMessage(env, chatId,
-      `Твоя страница уже опубликована:\n${base}/u/${u.slug}\n\nДержишь <b>${fmt(st.current)}</b>, ×${st.multiplier}. Делись ссылкой! 🚀`);
+      t(lang, "already", { url: `${base}/u/${u.slug}`, cur: fmt(st.current), mult: st.multiplier }));
   }
-  const intro = justStarted ? "Готово, День 1 зафиксирован! 🎉\n\n" : "Я нашёл твою статистику в группе 👇\n\n";
-  const body =
-    `${intro}<b>${esc(u.first_name)}</b>\n` +
-    `Сейчас: <b>${fmt(st.current)}</b>\n` +
-    `Старт: ${fmt(st.start)} · рост ×${st.multiplier} · ${st.reports} дней\n\n` +
-    `Опубликовать твою страницу и добавить в рейтинг на plank.today?`;
+  const body = t(lang, "card_body", {
+    intro: t(lang, justStarted ? "intro_started" : "intro_found"),
+    name: esc(u.first_name), cur: fmt(st.current), start: fmt(st.start),
+    mult: st.multiplier, days: daysStr(lang, st.reports),
+  });
   return sendMessage(env, chatId, body, {
     reply_markup: {
       inline_keyboard: [[
-        { text: "✅ Опубликовать", callback_data: "pub" },
-        { text: "🔒 Приватно", callback_data: "priv" },
+        { text: t(lang, "btn_publish"), callback_data: "pub" },
+        { text: t(lang, "btn_private"), callback_data: "priv" },
       ]],
     },
   });
@@ -220,17 +205,17 @@ async function handleCallback(env, cq) {
   const data = cq.data;
   const chatId = cq.message?.chat?.id;
   if (data === "pub" || data === "priv") {
-    await ensureUser(env, uid, fullNameOf(cq.from), cq.from.language_code);
+    const u0 = await ensureUser(env, uid, fullNameOf(cq.from), cq.from.language_code);
+    const lang = langOf(u0, cq.from);
     await registerUser(env, uid, data === "pub");
     const u = await getUserByUid(env, uid);
     const base = env.PUBLIC_BASE || "https://plank.today";
-    await answerCallback(env, cq.id, data === "pub" ? "Опубликовано!" : "Сохранено");
-    const where = data === "pub"
-      ? "Опубликовано и добавлено в рейтинг! 🏆"
-      : "Сохранено как приватная страница (не в рейтинге).";
+    await answerCallback(env, cq.id, t(lang, data === "pub" ? "cb_published" : "cb_saved"));
     await setStep(env, uid, "awaiting_photo");
-    return sendMessage(env, chatId,
-      `${where}\n\nТвоя ссылка:\n${base}/u/${u.slug}\n\n👥 Ежедневное сообщество (на русском): ${GROUP_INVITE}\n\n📸 Хочешь оживить страницу? Пришли фото или видео-кружок. Или напиши /skip.`);
+    return sendMessage(env, chatId, t(lang, "after_claim", {
+      where: t(lang, data === "pub" ? "where_public" : "where_private"),
+      url: `${base}/u/${u.slug}`, group: GROUP_INVITE,
+    }));
   }
 }
 
@@ -245,8 +230,8 @@ async function notifyAdmin(env, text) {
   if (env.ADMIN_UID) await sendMessage(env, env.ADMIN_UID, text);
 }
 
-async function handleMedia(env, msg, uid, chatId) {
-  if (!env.MEDIA) return sendMessage(env, chatId, "Загрузка медиа пока недоступна 🙏");
+async function handleMedia(env, msg, uid, chatId, lang = "ru") {
+  if (!env.MEDIA) return sendMessage(env, chatId, t(lang, "media_unavailable"));
 
   let fileId, ext, ct;
   if (msg.video_note) { fileId = msg.video_note.file_id; ext = "mp4"; ct = "video/mp4"; }
@@ -255,7 +240,7 @@ async function handleMedia(env, msg, uid, chatId) {
   else return;
 
   const dl = await downloadFile(env, fileId);
-  if (!dl) return sendMessage(env, chatId, "Не получилось скачать файл, попробуй ещё раз 🙏");
+  if (!dl) return sendMessage(env, chatId, t(lang, "media_dl_fail"));
   const newSize = dl.body.byteLength;
 
   // --- storage cap accounting (per-user delta so overwrites don't inflate the total) ---
@@ -269,7 +254,7 @@ async function handleMedia(env, msg, uid, chatId) {
 
   if (cap && newTotal > cap) {
     await notifyAdmin(env, `🛑 Хранилище R2 достигло лимита ${fmtBytes(cap)}. Загрузка ${fmtBytes(newSize)} от ${(u0 && u0.first_name) || uid} отклонена. Загрузки на паузе.`);
-    return sendMessage(env, chatId, "Хранилище временно заполнено — загрузка на паузе. Мы уже знаем 🙏");
+    return sendMessage(env, chatId, t(lang, "storage_full"));
   }
 
   const key = `u/${uid}.${ext}`;
@@ -285,5 +270,5 @@ async function handleMedia(env, msg, uid, chatId) {
   }
 
   const u = await getUserByUid(env, uid);
-  return sendMessage(env, chatId, `Добавил на твою страницу ✅\n${base}/u/${u.slug}`);
+  return sendMessage(env, chatId, t(lang, "media_added", { url: `${base}/u/${u.slug}` }));
 }
