@@ -42,7 +42,7 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:900;margin:.2em 0}
 .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .rankbadge{display:inline-flex;align-items:center;gap:6px;border:1px solid #2a2a2a;border-radius:999px;padding:7px 13px;font-weight:800;font-size:13px;text-decoration:none;color:#f2f2f2;background:#0e0e0e}
 .rankbadge:hover{border-color:#3ddc84;color:#fff}
-.board-desc{font-size:15px;margin:2px 0 16px;max-width:62ch;color:#c9c9c9}
+.board-desc{font-size:15px;margin:2px 0 16px;color:#c9c9c9}
 `;
 
 const esc = (s) =>
