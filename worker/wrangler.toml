@@ -1,0 +1,46 @@
+name = "plank-today"
+main = "src/index.js"
+compatibility_date = "2025-05-01"
+
+# Fill account_id after `wrangler whoami` (or it's in your dashboard URL).
+account_id = "05ac0ce5e11911e97af46358bcd0553f"
+
+# Route /u/* and /api/* to the Worker; the existing GitHub Pages site keeps
+# serving the landing at /. Configure these custom domains in the dashboard
+# (Workers > plank-today > Settings > Domains & Routes) after first deploy.
+routes = [
+  { pattern = "plank.today/u/*", zone_name = "plank.today" },
+  { pattern = "plank.today/api/*", zone_name = "plank.today" },
+  { pattern = "plank.today/board*", zone_name = "plank.today" },
+]
+
+# --- Workers AI (dynamic "welcome back" greetings) ---
+[ai]
+binding = "AI"
+
+# --- D1 (SQLite) ---
+# Create with: wrangler d1 create plank-today
+# then paste the printed database_id below.
+[[d1_databases]]
+binding = "DB"
+database_name = "plank-today"
+database_id = "4d5af499-8ba5-497a-876c-d43972a31a94"
+
+# --- R2 (photos / voice files) ---
+# Enable R2 once in the dashboard (Storage & Databases > R2 > accept terms),
+# then: wrangler r2 bucket create plank-today-media
+# and UNCOMMENT this block + redeploy to turn on photo/video uploads.
+# [[r2_buckets]]
+# binding = "MEDIA"
+# bucket_name = "plank-today-media"
+
+# Daily reminder / re-activation cron (08:00 UTC). Handler is a stub for now.
+[triggers]
+crons = ["0 8 * * *"]
+
+# Secrets (set via `wrangler secret put NAME`, never commit):
+#   TG_BOT_TOKEN          - from @BotFather (the rotated one)
+#   TG_WEBHOOK_SECRET     - random string; also passed when registering webhook
+#   GROUP_CHAT_ID         - e.g. -1002335455108 (your supergroup)
+[vars]
+PUBLIC_BASE = "https://plank.today"

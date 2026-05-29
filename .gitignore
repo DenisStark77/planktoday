@@ -1,0 +1,23 @@
+# Telegram export (contains real people's messages — never commit)
+ChatExport_*/
+result.json
+
+# Backfill artifacts (real names/stats — keep local until people opt in)
+tools/backfill_data.json
+
+# Python tooling
+venv/
+__pycache__/
+*.pyc
+
+# Wrangler local state/cache
+.wrangler/
+node_modules/
+
+# Telethon session / credentials
+session.txt
+.env
+qr.png
+
+# Local prototype output (unlisted until launch)
+prototype/

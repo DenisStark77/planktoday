@@ -78,6 +78,7 @@
     <div class="container nav">
       <div class="brand">PLANK <span class="opacity-70">+1%</span></div>
       <nav>
+        <a href="/board" data-i18n="nav.board">Рейтинг</a>
         <a href="#about" data-i18n="nav.about">Суть</a>
         <a href="#stages" data-i18n="nav.stages">Этапы</a>
         <a href="#form" data-i18n="nav.form">Форма</a>
@@ -318,7 +319,7 @@
     // --- i18n packs ---
     const I18N = {
       ru: {
-        nav:{about:'Суть',stages:'Этапы',form:'Форма',math:'Математика',community:'Сообщество',donate:'Донат'},
+        nav:{board:'Рейтинг',about:'Суть',stages:'Этапы',form:'Форма',math:'Математика',community:'Сообщество',donate:'Донат'},
         ui:{language:'Язык'},
         hero:{kicker:'Каждый день',title:'Маленький шаг. <br/>Экспоненциальный результат.',subtitle:'Ежедневная планка и +1% ко времени в день. Начни с того, что доступно прямо сейчас — 10 секунд, 30 секунд, 1 минута. Главное — повторять.',ctaStart:'Начать сегодня',ctaHow:'Как это работает',badge:'⏱️ Удвоение каждые ~2.5 месяца',quote:'«Ты не должен быть сильным, чтобы начать. Но если начнёшь — станешь сильным.»',statStart:'Старт',stat70:'+70 дней',stat365:'+365 дней',note:'*Расчёт по формуле t×1.01^n'},
         about:{h2:'Методология «Планка + 1%»',brief:'<strong>Краткая суть:</strong> ежедневно стой в планке, увеличивая время на <strong>1% в день</strong>. Начни с доступной тебе длительности — 10–15 секунд достаточно, чтобы начать.',valueTitle:'Ценность',values:{will:{title:'Воля и намерение',text:'способность завершать начатое'},discipline:{title:'Самодисциплина',text:'устойчивость к колебаниям'},growth:{title:'Мышление роста',text:'доступ к экспоненциальному росту'},motivation:{title:'Спонтанность и мотивация',text:'внутренний огонь'},belief:{title:'Вера в результат',text:'личный опыт «невозможного»'}},howTitle:'Как начать',how:{1:'Встань в планку и зафиксируй стартовое время.',2:'Каждый день добавляй +1% к вчерашнему времени.',3:'Не пропускай. Регулярность важнее идеала.',4:'Освой правильную форму, чтобы развиваться безопасно.'},cta:'К этапам практики'},
@@ -333,7 +334,7 @@
         footer:{free:'Свободная практика развития. Без paywall. Поддерживается сообществом.',contacts:'Контакты',telegram:'Telegram',links:'Ссылки',linkCommunity:'Сообщество',linkDonate:'Донат',linkMath:'Математика'}
       },
       en: {
-        nav:{about:'About',stages:'Stages',form:'Form',math:'Math',community:'Community',donate:'Donate'},
+        nav:{board:'Leaderboard',about:'About',stages:'Stages',form:'Form',math:'Math',community:'Community',donate:'Donate'},
         ui:{language:'Language'},
         hero:{kicker:'Every day',title:'A tiny step.<br/>An exponential result.',subtitle:'Hold a plank every day and add just +1% time daily. Start with what’s available now — 10 seconds, 30 seconds, 1 minute. The key is to repeat.',ctaStart:'Start today',ctaHow:'How it works',badge:'⏱️ Doubling every ~2.5 months',quote:'“You don’t have to be strong to start. But if you start — you’ll become strong.”',statStart:'Start',stat70:'+70 days',stat365:'+365 days',note:'*Calculated as t×1.01^n'},
         about:{h2:'Method “Plank +1%”',brief:'<strong>Essence:</strong> hold a plank daily and increase your time by <strong>1% per day</strong>. Start with any duration — 10–15 seconds is enough to begin.',valueTitle:'Value',values:{will:{title:'Will & Intention',text:'ability to finish what you start'},discipline:{title:'Self-discipline',text:'resilience to inner swings'},growth:{title:'Growth mindset',text:'access to exponential growth'},motivation:{title:'Spontaneity & Motivation',text:'inner fire without pressure'},belief:{title:'Belief in results',text:'personal experience of “impossible”'}},howTitle:'How to start',how:{1:'Take a plank and record your starting time.',2:'Add +1% to yesterday’s time every day.',3:'Don’t skip. Consistency beats perfection.',4:'Learn proper form to grow safely.'},cta:'Go to stages'},
@@ -348,7 +349,7 @@
         footer:{free:'Free practice of growth. No paywall. Community-supported.',contacts:'Contacts',telegram:'Telegram',links:'Links',linkCommunity:'Community',linkDonate:'Donate',linkMath:'Math'}
       },
       es: {
-        nav:{about:'Esencia',stages:'Etapas',form:'Técnica',math:'Matemática',community:'Comunidad',donate:'Donar'},
+        nav:{board:'Ranking',about:'Esencia',stages:'Etapas',form:'Técnica',math:'Matemática',community:'Comunidad',donate:'Donar'},
         ui:{language:'Idioma'},
         hero:{kicker:'Cada día',title:'Un paso pequeño.<br/>Un resultado exponencial.',subtitle:'Haz plancha cada día y suma solo +1% al tiempo diario. Empieza con lo que puedas ahora — 10 s, 30 s, 1 min. La clave es repetir.',ctaStart:'Empezar hoy',ctaHow:'Cómo funciona',badge:'⏱️ Duplicación cada ~2,5 meses',quote:'“No tienes que ser fuerte para empezar. Si empiezas, te harás fuerte.”',statStart:'Inicio',stat70:'+70 días',stat365:'+365 días',note:'*Cálculo: t×1.01^n'},
         about:{h2:'Método «Plancha +1%»',brief:'<strong>Esencia:</strong> hacer plancha a diario y aumentar el tiempo <strong>1% por día</strong>. Empieza con cualquier duración — 10–15 segundos bastan.',valueTitle:'Valor',values:{will:{title:'Voluntad e intención',text:'capacidad de terminar lo que empiezas'},discipline:{title:'Autodisciplina',text:'resistencia a vaivenes internos'},growth:{title:'Mentalidad de crecimiento',text:'acceso al crecimiento exponencial'},motivation:{title:'Espontaneidad y motivación',text:'fuego interno sin presión'},belief:{title:'Fe en el resultado',text:'experiencia personal de lo “imposible”'}},howTitle:'Cómo empezar',how:{1:'Toma la plancha y registra tu tiempo inicial.',2:'Cada día añade +1% al tiempo de ayer.',3:'No faltes. La constancia supera a la perfección.',4:'Aprende la técnica correcta para progresar con seguridad.'},cta:'Ir a las etapas'},
@@ -363,7 +364,7 @@
         footer:{free:'Práctica libre. Sin paywall. Sostenida por la comunidad.',contacts:'Contactos',telegram:'Telegram',links:'Enlaces',linkCommunity:'Comunidad',linkDonate:'Donar',linkMath:'Matemática'}
       },
       ar: {
-        nav:{about:'الخلاصة',stages:'المراحل',form:'الوضعية',math:'الرياضيات',community:'المجتمع',donate:'الدعم'},
+        nav:{board:'التصنيف',about:'الخلاصة',stages:'المراحل',form:'الوضعية',math:'الرياضيات',community:'المجتمع',donate:'الدعم'},
         ui:{language:'اللغة'},
         hero:{kicker:'كل يوم',title:'خطوة صغيرة.<br/>نتيجة أُسّية.',subtitle:'ثبّت وضعية البلانك يوميًا وأضف ‎+1%‎ من الوقت كل يوم. ابدأ بما تستطيع الآن — 10 ثوانٍ، 30 ثانية، دقيقة. المفتاح هو الاستمرار.',ctaStart:'ابدأ اليوم',ctaHow:'كيف تعمل الطريقة',badge:'⏱️ يتضاعف كل ~2.5 شهر',quote:'"لست مضطرًا أن تكون قويًا لتبدأ. لكن إن بدأت — ستصبح قويًا."',statStart:'البدء',stat70:'+٧٠ يومًا',stat365:'+٣٦٥ يومًا',note:'*الحساب: t×1.01^n'},
         about:{h2:'منهج «بلانك ‎+1%»',brief:'<strong>الخلاصة:</strong> حافظ على البلانك يوميًا وزد الزمن <strong>1% يوميًا</strong>. ابدأ بأي مدة — 10–15 ثانية تكفي للبداية.',valueTitle:'القيمة',values:{will:{title:'الإرادة والنية',text:'القدرة على إتمام ما تبدأه'},discipline:{title:'الانضباط الذاتي',text:'المرونة أمام التقلبات الداخلية'},growth:{title:'عقلية النمو',text:'الوصول إلى نمو أُسّي'},motivation:{title:'العفوية والدافع',text:'شغف داخلي بلا ضغط'},belief:{title:'الإيمان بالنتيجة',text:'تجربة شخصية لـ"المستحيل"'}},howTitle:'كيف تبدأ',how:{1:'اتخذ وضعية البلانك وسجّل زمن البداية.',2:'زد ‎+1%‎ من زمن الأمس كل يوم.',3:'لا تنقطع. الاستمرارية أهم من الكمال.',4:'تعلّم الوضعية الصحيحة للنمو بأمان.'},cta:'الانتقال إلى المراحل'},

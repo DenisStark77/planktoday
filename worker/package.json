@@ -1,0 +1,17 @@
+{
+  "name": "plank-today-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:schema": "wrangler d1 execute plank-today --file=./schema.sql",
+    "db:seed": "wrangler d1 execute plank-today --file=./seed.sql",
+    "db:schema:local": "wrangler d1 execute plank-today --local --file=./schema.sql",
+    "db:seed:local": "wrangler d1 execute plank-today --local --file=./seed.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
