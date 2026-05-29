@@ -39,6 +39,10 @@ a{color:var(--fg)}
 .lb li:hover{background:#0e0e0e}
 h1{font-size:clamp(30px,5vw,52px);font-weight:900;margin:.2em 0}
 .title-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.rankbadge{display:inline-flex;align-items:center;gap:6px;border:1px solid #2a2a2a;border-radius:999px;padding:7px 13px;font-weight:800;font-size:13px;text-decoration:none;color:#f2f2f2;background:#0e0e0e}
+.rankbadge:hover{border-color:#3ddc84;color:#fff}
+.board-desc{font-size:15px;margin:2px 0 16px;max-width:62ch;color:#c9c9c9}
 `;
 
 const esc = (s) =>
@@ -106,6 +110,44 @@ function shareLinks(env, slug, fname, st) {
   };
 }
 
+// Leaderboards. metric/render take a `stats` object. Order = tab order.
+const BOARDS = [
+  { key: "endurance", name: "Выносливость",
+    desc: "Способность продолжительное время преодолевать дискомфорт для достижения цели.",
+    metric: (s) => s.current, render: (s) => fmt(s.current) },
+  { key: "exp", name: "Экспонента",
+    desc: "Многократно вырасти можно, делая малые шаги каждый день.",
+    metric: (s) => s.multiplier || 0, render: (s) => `×${s.multiplier}` },
+  { key: "discipline", name: "Дисциплина",
+    desc: "Продолжать без пропусков несмотря ни на какие обстоятельства.",
+    metric: (s) => s.streak, render: (s) => `${s.streak} дн.` },
+  { key: "commitment", name: "Приверженность",
+    desc: "Результат от планки накапливается, даже если ты делаешь пропуски.",
+    metric: (s) => s.reports, render: (s) => `${s.reports}` },
+  { key: "comebacks", name: "Возвращения",
+    desc: "Начать заново после того, как бросил — редкая способность.",
+    metric: (s) => s.comebackCount, render: (s) => `${s.comebackCount}×` },
+  { key: "firststep", name: "Первый шаг",
+    desc: "Самое трудное — это первый раз встать в планку.",
+    metric: (s) => -(Date.now() - Date.parse(s.startDate)), render: (s) => s.startDate },
+];
+
+/** This user's placements: boards where they rank in the top `limit`, best first. */
+async function rankBadges(env, uid) {
+  const pop = await listPublicWithStats(env);
+  const placements = [];
+  for (const b of BOARDS) {
+    const ranked = pop.filter((x) => b.metric(x.stats)).sort((a, c) => b.metric(c.stats) - b.metric(a.stats));
+    const idx = ranked.findIndex((x) => x.user.uid === uid);
+    if (idx >= 0 && idx < 5) placements.push({ b, rank: idx + 1 });
+  }
+  placements.sort((a, c) => a.rank - c.rank);
+  const medals = { 1: "🥇", 2: "🥈", 3: "🥉" };
+  const items = placements.slice(0, 3).map(({ b, rank }) =>
+    `<a class="rankbadge" href="/board?cat=${b.key}">${medals[rank] || "№" + rank} · ${b.name}</a>`).join("");
+  return items ? `<div class="badges">${items}</div>` : "";
+}
+
 export async function renderProfile(env, slug) {
   const u = await getUserBySlug(env, slug);
   if (!u || !u.registered) return null;
@@ -119,6 +161,7 @@ export async function renderProfile(env, slug) {
   const cbLine = st.comebackCount
     ? `<div class="stat"><span class="muted">Возвращений</span><br><b>${st.comebackCount}</b></div>` : "";
   const avatar = u.photo_url ? `<img class="avatar" src="${esc(u.photo_url)}" alt=""/> ` : "";
+  const badges = u.public ? await rankBadges(env, u.uid) : "";
   return head(`${fname} — Планка +1%`, `${fmt(st.start)} → ${fmt(st.current)}, ×${st.multiplier} за ${st.reports} дней.`, og) + `
 <div class="container">
   <div class="title-row"><a class="brand" href="/">PLANK +1%</a><span class="muted">/ профиль</span></div>
@@ -135,6 +178,7 @@ export async function renderProfile(env, slug) {
         <div class="stat"><span class="muted">Лучшая серия</span><br><b>${st.streak}</b></div>
         ${cbLine}
       </div>
+      ${badges}
       <div class="cta-row">
         <a class="btn" href="${s.x}" target="_blank" rel="noopener">Поделиться в X</a>
         <a class="btn ghost" href="${s.li}" target="_blank" rel="noopener">LinkedIn</a>
@@ -156,47 +200,46 @@ export async function renderProfile(env, slug) {
 </div></body></html>`;
 }
 
-export async function renderLeaderboard(env) {
+export async function renderLeaderboard(env, activeCat) {
   const rows = await listPublicWithStats(env);
-  const now = new Date();
-  const cats = [
-    ["current", "Текущее время", (x) => x.stats.current, (x) => fmt(x.stats.current)],
-    ["mult", "Множитель", (x) => x.stats.multiplier || 0, (x) => `×${x.stats.multiplier}`],
-    ["streak", "Лучшая серия", (x) => x.stats.streak, (x) => `${x.stats.streak} дн.`],
-    ["days", "Всего дней", (x) => x.stats.reports, (x) => `${x.stats.reports}`],
-    ["comeback", "Возвращения", (x) => x.stats.comebackCount, (x) => `${x.stats.comebackCount}×`],
-    ["new", "Только что начал", (x) => -(now - Date.parse(x.stats.startDate)), (x) => x.stats.startDate],
-  ];
-  const blocks = cats.map(([key, , metric, render]) => {
-    const ranked = rows.filter((x) => metric(x)).sort((a, b) => metric(b) - metric(a)).slice(0, 8);
+  const active = BOARDS.some((b) => b.key === activeCat) ? activeCat : BOARDS[0].key;
+  const vis = (k) => (k === active ? "block" : "none");
+
+  const lists = BOARDS.map((b) => {
+    const ranked = rows.filter((x) => b.metric(x.stats)).sort((a, c) => b.metric(c.stats) - b.metric(a.stats)).slice(0, 10);
     const items = ranked.map((x, i) => {
-      const st = x.stats.active ? "active" : "paused";
-      return `<li><span class="rank">${i + 1}</span><span class="dot ${st}"></span>` +
+      const stt = x.stats.active ? "active" : "paused";
+      return `<li><span class="rank">${i + 1}</span><span class="dot ${stt}"></span>` +
         `<a class="nm" href="/u/${esc(x.user.slug)}">${esc(x.user.first_name)}</a>` +
-        `<span class="val mono">${render(x)}</span></li>`;
+        `<span class="val mono">${b.render(x.stats)}</span></li>`;
     }).join("");
-    return `<ul class="lb" data-cat="${key}" style="display:${key === "current" ? "block" : "none"}">${items}</ul>`;
+    return `<ul class="lb" data-cat="${b.key}" style="display:${vis(b.key)}">${items || '<li class="muted">Пока никого нет</li>'}</ul>`;
   }).join("");
-  const tabs = cats.map(([k, lbl]) =>
-    `<button class="tab ${k === "current" ? "on" : ""}" data-cat="${k}">${lbl}</button>`).join("");
+  const descs = BOARDS.map((b) =>
+    `<p class="board-desc" data-cat="${b.key}" style="display:${vis(b.key)}">${b.desc}</p>`).join("");
+  const tabs = BOARDS.map((b) =>
+    `<button class="tab ${b.key === active ? "on" : ""}" data-cat="${b.key}">${b.name}</button>`).join("");
+
   const nActive = rows.filter((x) => x.stats.active).length;
   const empty = rows.length ? "" : `<p class="muted">Пока никто не зарегистрировался. Откройте бота @plank_today_bot и нажмите «Опубликовать».</p>`;
   return head("Планка +1% — Рейтинг участников", "Реальные результаты практикующих планку +1% каждый день.") + `
 <div class="container">
   <a class="brand" href="/">PLANK +1%</a>
   <h1>Рейтинг участников</h1>
-  <p class="muted">${rows.length} в рейтинге · <span class="dot active"></span> ${nActive} активны сейчас ·
-     <span class="dot paused"></span> ${rows.length - nActive} на паузе</p>
+  <p class="muted">${rows.length} в рейтинге · <span class="dot active"></span> ${nActive} активны · <span class="dot paused"></span> ${rows.length - nActive} на паузе</p>
   ${empty}
   <div class="tabs">${tabs}</div>
-  ${blocks}
+  ${descs}
+  ${lists}
+  <p class="muted" style="margin-top:24px;font-size:13px"><a href="/">← о методологии «Планка +1%»</a></p>
 </div>
 <script>
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
-  const c=t.dataset.cat;
-  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+function showCat(c){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.cat===c));
   document.querySelectorAll('.lb').forEach(u=>u.style.display=(u.dataset.cat===c)?'block':'none');
-}));
+  document.querySelectorAll('.board-desc').forEach(d=>d.style.display=(d.dataset.cat===c)?'block':'none');
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>showCat(t.dataset.cat)));
 </script></body></html>`;
 }
 

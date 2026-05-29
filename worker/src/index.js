@@ -45,7 +45,7 @@ export default {
       }
 
       if (pathname === "/board" || pathname === "/board/" || pathname === "/" || pathname === "/index.html") {
-        return html(await renderLeaderboard(env));
+        return html(await renderLeaderboard(env, url.searchParams.get("cat")));
       }
 
       const m = pathname.match(/^\/u\/([a-z0-9-]+)\/?$/i);
