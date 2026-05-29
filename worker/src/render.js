@@ -132,14 +132,15 @@ const BOARDS = [
     metric: (s) => -(Date.now() - Date.parse(s.startDate)), render: (s) => s.startDate },
 ];
 
-/** This user's placements: boards where they rank in the top `limit`, best first. */
+/** This user's RELATIVELY-best placements: the boards where they rank highest
+ * compared to their own other ranks (best first) — shown even if it's #23. */
 async function rankBadges(env, uid) {
   const pop = await listPublicWithStats(env);
   const placements = [];
   for (const b of BOARDS) {
     const ranked = pop.filter((x) => b.metric(x.stats)).sort((a, c) => b.metric(c.stats) - b.metric(a.stats));
     const idx = ranked.findIndex((x) => x.user.uid === uid);
-    if (idx >= 0 && idx < 5) placements.push({ b, rank: idx + 1 });
+    if (idx >= 0) placements.push({ b, rank: idx + 1 });
   }
   placements.sort((a, c) => a.rank - c.rank);
   const medals = { 1: "🥇", 2: "🥈", 3: "🥉" };
