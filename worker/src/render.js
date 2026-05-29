@@ -26,6 +26,11 @@ a{color:var(--fg)}
 .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid #f2f2f2;background:#f2f2f2;color:#0a0a0a;padding:11px 15px;border-radius:12px;font-weight:800;text-decoration:none;font-size:14px}
 .btn.ghost{background:transparent;color:var(--fg);border-color:#2a2a2a}
 .btn.start{background:#3ddc84;border-color:#3ddc84;color:#06210f}
+.btn.icon{padding:11px 13px;background:transparent;border-color:#2a2a2a;color:var(--fg)}
+.btn.icon:hover{border-color:#3ddc84}
+.btn.icon svg{display:block}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0e0e0e;color:#fff;padding:12px 22px;border-radius:999px;border:1px solid #2a2a2a;font-weight:700;font-size:14px;z-index:100;box-shadow:0 8px 28px rgba(0,0,0,.45);animation:psFade .25s ease-out}
+@keyframes psFade{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translateX(-50%)}}
 .sharecard{background:#faf7f0;color:#111;border-radius:16px;padding:26px 28px;max-width:520px;border:1px solid #e6e0d4}
 .sharecard .num{font-size:64px;font-weight:900;line-height:1}
 .sharecard .meta{color:#555;font-weight:700;margin-top:6px}
@@ -107,8 +112,7 @@ function shareLinks(env, slug, fname, st) {
   const txt = `${fname}: планка ${fmt(st.start)} → ${fmt(st.peak)} (×${st.multiplier}). Маленький шаг каждый день. ${base}`;
   const e = encodeURIComponent;
   return {
-    x: `https://twitter.com/intent/tweet?text=${e(txt)}`,
-    li: `https://www.linkedin.com/sharing/share-offsite/?url=${e(url)}`,
+    url, txt,
     tg: `https://t.me/share/url?url=${e(url)}&text=${e(txt)}`,
   };
 }
@@ -195,12 +199,36 @@ export async function renderProfile(env, slug) {
       ${badges}
       <div class="cta-row">
         <a class="btn start" href="https://t.me/plank_today_bot?start=u_${esc(slug)}" target="_blank" rel="noopener">Начать свою планку →</a>
+        <button class="btn" type="button" onclick="psShare()">Поделиться</button>
+        <a class="btn icon" href="${s.tg}" target="_blank" rel="noopener" aria-label="Telegram" title="Telegram"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg></a>
+        <button class="btn icon" type="button" onclick="psCopy()" aria-label="Скопировать ссылку" title="Скопировать ссылку"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
       </div>
-      <div class="cta-row">
-        <a class="btn ghost" href="${s.x}" target="_blank" rel="noopener">Поделиться в X</a>
-        <a class="btn ghost" href="${s.li}" target="_blank" rel="noopener">LinkedIn</a>
-        <a class="btn ghost" href="${s.tg}" target="_blank" rel="noopener">Telegram</a>
-      </div>
+      <script>
+const PS_URL = ${JSON.stringify(s.url)};
+const PS_TEXT = ${JSON.stringify(s.txt)};
+async function psShare(){
+  if (navigator.share){
+    try { await navigator.share({ title: "Планка +1%", text: PS_TEXT, url: PS_URL }); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  psCopy();
+}
+async function psCopy(){
+  try { await navigator.clipboard.writeText(PS_URL); psToast("Ссылка скопирована"); return; }
+  catch (e) {}
+  const t = document.createElement('textarea');
+  t.value = PS_URL; t.style.position='fixed'; t.style.opacity='0';
+  document.body.appendChild(t); t.select();
+  try { document.execCommand('copy'); psToast("Ссылка скопирована"); } catch (e) {}
+  document.body.removeChild(t);
+}
+function psToast(msg){
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2000);
+}
+</script>
     </div>
     <div class="card chartcard">
       <h2 style="margin-top:0;font-size:18px">Рост по дням</h2>
