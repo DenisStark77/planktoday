@@ -157,6 +157,11 @@ async function handleDM(env, msg) {
     return sendMessage(env, chatId, t(lang, "skip_done", { url: `${base}/u/${u.slug}` }));
   }
 
+  if (text.startsWith("/donate")) {
+    const wallet = env.DONATE_TG || "";
+    return sendMessage(env, chatId, wallet ? t(lang, "donate", { wallet }) : t(lang, "donate_unavail"));
+  }
+
   if (text.startsWith("/start")) {
     await applyReferral(env, uid, text.split(/\s+/)[1] || "");
     if ((await getEntries(env, uid)).length) return showClaimCard(env, chatId, uid, false, lang);

@@ -21,6 +21,8 @@ const STR = {
     storage_full: "Хранилище временно заполнено — загрузка на паузе. Мы уже знаем 🙏",
     media_added: "Добавил на твою страницу ✅\n{url}",
     skip_done: "Ок! Твоя страница готова:\n{url}",
+    donate: "<b>Спасибо, что практикуешь 🙏</b>\n\nplank.today — свободная практика, без paywall. Если она помогает тебе и хочется поддержать проект и моё время:\n\n💎 Отправь любую сумму в <b>USDT</b> или <b>TON</b> через Telegram Wallet:\nОткрой @wallet → «Отправить» → получателю <b>@{wallet}</b>.\n\nТолько по желанию и только если практика приносит пользу. Спасибо! 💚",
+    donate_unavail: "Поддержка скоро будет доступна 🙏",
   },
   en: {
     onboard: "Hi! 🙌 This is <b>Plank +1%</b>.\n\nHold a plank as long as you can, then send me the result — e.g. <b>0:30</b> or just <b>30</b> (seconds). That's your Day 1.",
@@ -42,6 +44,8 @@ const STR = {
     storage_full: "Storage is temporarily full — uploads paused. We're on it 🙏",
     media_added: "Added to your page ✅\n{url}",
     skip_done: "OK! Your page is ready:\n{url}",
+    donate: "<b>Thank you for practicing 🙏</b>\n\nplank.today is free, no paywall. If it helps you and you'd like to support the project and my time:\n\n💎 Send any amount in <b>USDT</b> or <b>TON</b> via Telegram Wallet:\nOpen @wallet → Send → to <b>@{wallet}</b>.\n\nOnly if the practice brings you value. Thank you! 💚",
+    donate_unavail: "Support will be available soon 🙏",
   },
   es: {
     onboard: "¡Hola! 🙌 Esto es <b>Plancha +1%</b>.\n\nHaz la plancha el máximo que puedas y envíame el resultado — p. ej. <b>0:30</b> o solo <b>30</b> (segundos). Será tu Día 1.",
@@ -63,6 +67,8 @@ const STR = {
     storage_full: "El almacenamiento está lleno temporalmente — subidas en pausa. Ya lo sabemos 🙏",
     media_added: "Añadido a tu página ✅\n{url}",
     skip_done: "¡Listo! Tu página está lista:\n{url}",
+    donate: "<b>Gracias por practicar 🙏</b>\n\nplank.today es libre, sin muros de pago. Si te ayuda y quieres apoyar el proyecto y mi tiempo:\n\n💎 Envía cualquier cantidad en <b>USDT</b> o <b>TON</b> con Telegram Wallet:\nAbre @wallet → Enviar → a <b>@{wallet}</b>.\n\nSolo si la práctica te aporta valor. ¡Gracias! 💚",
+    donate_unavail: "El apoyo estará disponible pronto 🙏",
   },
   ar: {
     onboard: "مرحبًا! 🙌 هذا <b>بلانك ‎+1%‎</b>.\n\nثبّت وضعية البلانك أطول ما تستطيع، ثم أرسل لي النتيجة — مثلاً <b>0:30</b> أو فقط <b>30</b> (ثانية). سيكون هذا يومك الأول.",
@@ -84,6 +90,8 @@ const STR = {
     storage_full: "التخزين ممتلئ مؤقتًا — الرفع متوقف. نحن على علم 🙏",
     media_added: "أُضيف إلى صفحتك ✅\n{url}",
     skip_done: "تمام! صفحتك جاهزة:\n{url}",
+    donate: "<b>شكرًا لممارستك 🙏</b>\n\nplank.today مجاني بلا حواجز دفع. إن كان يساعدك وتريد دعم المشروع ووقتي:\n\n💎 أرسل أي مبلغ بعملة <b>USDT</b> أو <b>TON</b> عبر Telegram Wallet:\nافتح @wallet → إرسال → إلى <b>@{wallet}</b>.\n\nفقط إن كانت الممارسة تفيدك. شكرًا! 💚",
+    donate_unavail: "الدعم سيتوفر قريبًا 🙏",
   },
 };
 
