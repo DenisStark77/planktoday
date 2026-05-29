@@ -41,9 +41,7 @@ crons = ["0 8 * * *"]
 #   GROUP_CHAT_ID         - e.g. -1002335455108 (your supergroup)
 [vars]
 PUBLIC_BASE = "https://plank.today"
-# R2 storage guard (bytes). Hard cap below the 10 GB free tier; warn earlier.
-# TESTING: warn set to 5 MB to verify the alert fires on the first upload.
-# Revert R2_WARN_BYTES to 7516192768 (7 GB) after the test.
-R2_WARN_BYTES = "5242880"
+# R2 storage guard (bytes). Hard cap below the 10 GB free tier; warn at 7 GB.
+R2_WARN_BYTES = "7516192768"
 R2_CAP_BYTES = "9663676416"
 ADMIN_UID = "8607657267"
