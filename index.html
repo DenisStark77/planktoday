@@ -32,7 +32,8 @@
     .lang select{background:#0e0e0e;color:var(--fg);border:1px solid #2a2a2a;border-radius:10px;padding:8px}
     .hero{padding:64px 0 40px;border-bottom:1px solid #1a1a1a}
     .kicker{color:var(--muted);font-weight:600;letter-spacing:.2em;text-transform:uppercase}
-    .title{font-size:clamp(40px,6vw,86px);line-height:1.05;margin:.2em 0 .3em;font-weight:900;letter-spacing:-.01em}
+    .title{font-size:clamp(36px,5vw,74px);line-height:1.05;margin:.2em 0 .3em;font-weight:900;letter-spacing:-.01em}
+    .nowrap{white-space:nowrap}
     .subtitle{font-size:clamp(18px,2.2vw,22px);color:#d7d7d7;max-width:52ch}
     .cta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:26px}
     .btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid #f2f2f2;color:#0a0a0a;background:var(--accent);padding:14px 18px;border-radius:14px;font-weight:800;letter-spacing:.02em}
@@ -336,7 +337,7 @@
       en: {
         nav:{board:'Leaderboard',about:'About',stages:'Stages',form:'Form',math:'Math',community:'Community',donate:'Donate'},
         ui:{language:'Language'},
-        hero:{kicker:'Every day',title:'A tiny step.<br/>An exponential result.',subtitle:'Hold a plank every day and add just +1% time daily. Start with what’s available now — 10 seconds, 30 seconds, 1 minute. The key is to repeat.',ctaStart:'Start today',ctaHow:'How it works',badge:'⏱️ Doubling every ~2.5 months',quote:'“You don’t have to be strong to start. But if you start — you’ll become strong.”',statStart:'Start',stat70:'+70 days',stat365:'+365 days',note:'*Calculated as t×1.01^n'},
+        hero:{kicker:'Every day',title:'A tiny step.<br/><span class="nowrap">An exponential</span> result.',subtitle:'Hold a plank every day and add just +1% time daily. Start with what’s available now — 10 seconds, 30 seconds, 1 minute. The key is to repeat.',ctaStart:'Start today',ctaHow:'How it works',badge:'⏱️ Doubling every ~2.5 months',quote:'“You don’t have to be strong to start. But if you start — you’ll become strong.”',statStart:'Start',stat70:'+70 days',stat365:'+365 days',note:'*Calculated as t×1.01^n'},
         about:{h2:'Method “Plank +1%”',brief:'<strong>Essence:</strong> hold a plank daily and increase your time by <strong>1% per day</strong>. Start with any duration — 10–15 seconds is enough to begin.',valueTitle:'Value',values:{will:{title:'Will & Intention',text:'ability to finish what you start'},discipline:{title:'Self-discipline',text:'resilience to inner swings'},growth:{title:'Growth mindset',text:'access to exponential growth'},motivation:{title:'Spontaneity & Motivation',text:'inner fire without pressure'},belief:{title:'Belief in results',text:'personal experience of “impossible”'}},howTitle:'How to start',how:{1:'Take a plank and record your starting time.',2:'Add +1% to yesterday’s time every day.',3:'Don’t skip. Consistency beats perfection.',4:'Learn proper form to grow safely.'},cta:'Go to stages'},
         stages:{h2:'Practice stages',start:{h3:'Start',p:'First action — just take a plank and time it. That’s your baseline. No limits.'},first:{h3:'First days',p:'Goal — get into rhythm. Find time, place, support. Form can be imperfect for a few days — build the habit first.'},growth:{h3:'Initial growth',p:'+1% a day works like compound interest. Small at first, then faster. <span class="mono">20s → 21s</span> in ~5 days; <span class="mono">30s → 31s</span> in 3–4 days.'},double:{h3:'Doublings (2×)',p:'Any start doubles in ~70 days: <span class="mono">1.01^70 ≈ 2.007</span>. 20s → 40s, 1m → 2m, 5m → 10m.'}},
         calc:{h3:' +1% Calculator',label:'Starting time (sec):<br>',btnCalc:'Calculate',btnMath:'See the math'},
