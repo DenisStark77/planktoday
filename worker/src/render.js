@@ -62,7 +62,7 @@ ${extraMeta}
 
 const PROJ_DAYS = 70; // forward horizon = one +1% doubling (the project's core promise)
 
-function svgChart(stats, w = 560, h = 200, pad = 28) {
+function svgChart(stats, w = 560, h = 440, pad = 30) {
   const series = stats.series;
   if (series.length < 2) return "<p class='muted'>Недостаточно данных для графика</p>";
   const d0 = Date.parse(series[0][0]);
@@ -172,7 +172,7 @@ export async function renderProfile(env, slug) {
   <div class="hero">
     <div>
       <div class="badge"><span class="dot ${statusCls}"></span> ${statusRu}</div>
-      <h1 style="margin-top:14px">${avatar}${esc(fname)}</h1>
+      <h1 style="margin-top:14px;display:flex;align-items:center;gap:14px">${avatar}${esc(fname)}</h1>
       <div class="muted">сейчас держит</div>
       <div class="bignum mono">${fmt(st.current)}</div>
       <div class="statline">
