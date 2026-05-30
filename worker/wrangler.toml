@@ -49,10 +49,17 @@ PUBLIC_BASE = "https://plank.today"
 # R2 storage guard (bytes). Hard cap below the 10 GB free tier; warn at 7 GB.
 R2_WARN_BYTES = "7516192768"
 R2_CAP_BYTES = "9663676416"
+# Site owner / FOUNDER — Denis (@denisstark77, slug "denis"). NOT the Telegram
+# group admin (that's ANON_ADMIN_UID below — easy to mix these up). render.js
+# uses this uid to drop the founder from any leaderboard he'd rank #1 on.
+# See NOTES.md → "Founder excluded from leaderboards".
 ADMIN_UID = "8607657267"
-# Anonymous-admin attribution: anonymous group posts (sender_chat === group) are
-# credited to this uid (an admin who can't disable anonymity). Empty = ignore them.
-ANON_ADMIN_UID = "969418040"  # @JaneStarck (Женя) — admin who can't disable anonymity
+# Anonymous-admin attribution: in the TG group, Jane posts as the group's
+# anonymous admin (Telegram's "send as anonymous" flag is on and can't be
+# disabled), so those posts arrive as sender_chat === group. We credit them to
+# this uid. Her own plank history lives under this account. Empty = ignore them.
+# See NOTES.md → "Accounts / identity".
+ANON_ADMIN_UID = "969418040"  # @JaneStarck (Женя / "Jane") — group admin, anonymous
 # /donate sends supporters to your Telegram Wallet: they open @wallet and send
 # USDT/TON to @<DONATE_TG>. Set to your Telegram username (no @).
 DONATE_TG = "denisstark77"

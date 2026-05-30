@@ -144,13 +144,27 @@ const BOARDS = [
     metric: (s) => s.invites || 0, render: (s) => `${s.invites || 0}` },
 ];
 
+/** Rank a board (best first). The founder (site admin) steps off any board he
+ * would top: shown only where he isn't #1, so the rankings stay a contest
+ * between members. His full history still lives on his own profile — this just
+ * removes the demotivating "the owner always wins" from the leaderboards. */
+function rankBoard(board, rows, founderUid) {
+  const ranked = rows
+    .filter((x) => board.metric(x.stats))
+    .sort((a, c) => board.metric(c.stats) - board.metric(a.stats));
+  if (founderUid && ranked.length && String(ranked[0].user.uid) === String(founderUid)) {
+    return ranked.slice(1);
+  }
+  return ranked;
+}
+
 /** This user's RELATIVELY-best placements: the boards where they rank highest
  * compared to their own other ranks (best first) — shown even if it's #23. */
 async function rankBadges(env, uid) {
   const pop = await listPublicWithStats(env);
   const placements = [];
   for (const b of BOARDS) {
-    const ranked = pop.filter((x) => b.metric(x.stats)).sort((a, c) => b.metric(c.stats) - b.metric(a.stats));
+    const ranked = rankBoard(b, pop, env.ADMIN_UID);
     const idx = ranked.findIndex((x) => x.user.uid === uid);
     if (idx >= 0) placements.push({ b, rank: idx + 1 });
   }
@@ -270,7 +284,7 @@ export async function renderLeaderboard(env, activeCat) {
   const vis = (k) => (k === active ? "block" : "none");
 
   const lists = BOARDS.map((b) => {
-    const ranked = rows.filter((x) => b.metric(x.stats)).sort((a, c) => b.metric(c.stats) - b.metric(a.stats)).slice(0, 10);
+    const ranked = rankBoard(b, rows, env.ADMIN_UID).slice(0, 10);
     const items = ranked.map((x, i) => {
       const stt = x.stats.active ? "active" : "paused";
       return `<li><span class="rank">${i + 1}</span><span class="dot ${stt}"></span>` +
