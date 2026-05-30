@@ -33,7 +33,9 @@ export default {
         return new Response("ok");
       }
 
-      // dynamic OG share card
+      // dynamic share cards: .png = OG (1200x630), .story.png = portrait (1080x1920)
+      const story = pathname.match(/^\/api\/card\/([a-z0-9-]+)\.story\.png$/i);
+      if (story) return renderCard(env, story[1], "story");
       const card = pathname.match(/^\/api\/card\/([a-z0-9-]+)\.png$/i);
       if (card) return renderCard(env, card[1]);
 

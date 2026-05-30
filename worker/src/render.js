@@ -113,6 +113,8 @@ function shareLinks(env, slug, fname, st) {
   const e = encodeURIComponent;
   return {
     url, txt,
+    card: `${base}/api/card/${slug}.png`,
+    story: `${base}/api/card/${slug}.story.png`,
     tg: `https://t.me/share/url?url=${e(url)}&text=${e(txt)}`,
   };
 }
@@ -201,17 +203,40 @@ export async function renderProfile(env, slug) {
         <a class="btn start" href="https://t.me/plank_today_bot?start=u_${esc(slug)}" target="_blank" rel="noopener">Начать свою планку →</a>
         <button class="btn" type="button" onclick="psShare()">Поделиться</button>
         <a class="btn icon" href="${s.tg}" target="_blank" rel="noopener" aria-label="Telegram" title="Telegram"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg></a>
+        <button class="btn icon" type="button" onclick="psShareImg()" aria-label="Instagram" title="Поделиться картинкой (Instagram, Stories)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></button>
         <button class="btn icon" type="button" onclick="psCopy()" aria-label="Скопировать ссылку" title="Скопировать ссылку"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
       </div>
       <script>
 const PS_URL = ${JSON.stringify(s.url)};
 const PS_TEXT = ${JSON.stringify(s.txt)};
+const PS_CARD = ${JSON.stringify(s.card)};
+const PS_STORY = ${JSON.stringify(s.story)};
 async function psShare(){
   if (navigator.share){
     try { await navigator.share({ title: "Планка +1%", text: PS_TEXT, url: PS_URL }); return; }
     catch (e) { if (e && e.name === "AbortError") return; }
   }
   psCopy();
+}
+// Shares the card as an IMAGE FILE. Sharing a file (not a link) is what lets
+// Instagram offer the Feed/Story post flow instead of only Direct messages.
+// Uses the 1080x1920 portrait card so it looks native in Stories.
+async function psShareImg(){
+  try {
+    const resp = await fetch(PS_STORY, { cache: "force-cache" });
+    if (!resp.ok) throw new Error("fetch failed");
+    const blob = await resp.blob();
+    const file = new File([blob], "plank.png", { type: blob.type || "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })){
+      try { await navigator.share({ files: [file], title: "Планка +1%" }); return; }
+      catch (e) { if (e && e.name === "AbortError") return; throw e; }
+    }
+    // Desktop / no file-share support: open the image so the user can save it.
+    window.open(PS_STORY, "_blank", "noopener");
+    psToast("Картинка открыта — сохрани и выложи в Stories");
+  } catch (e) {
+    window.open(PS_STORY, "_blank", "noopener");
+  }
 }
 async function psCopy(){
   try { await navigator.clipboard.writeText(PS_URL); psToast("Ссылка скопирована"); return; }
