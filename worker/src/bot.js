@@ -6,6 +6,10 @@ import {
   setReferral, computeStats, fmt, normLang,
 } from "./db.js";
 import { t, daysStr, langName, welcomeFallback } from "./i18n.js";
+import {
+  handleReminderCallback, openPicker, offerReminder, broadcastReminderOffer,
+} from "./reminders.js";
+import { markReminderOffered } from "./db.js";
 
 /** Resolve a user's language for bot messages. */
 function langOf(u, from) {
@@ -162,6 +166,22 @@ async function handleDM(env, msg) {
     return sendMessage(env, chatId, wallet ? t(lang, "donate", { wallet }) : t(lang, "donate_unavail"));
   }
 
+  if (text.startsWith("/remind")) {
+    return openPicker(env, chatId, u);
+  }
+
+  // Admin-only: one-time opt-in broadcast to users who haven't been offered yet.
+  // `/broadcast_reminders test` previews the offer to the admin only (marks nobody).
+  if (text.startsWith("/broadcast_reminders")) {
+    if (String(uid) !== String(env.ADMIN_UID)) return;
+    if ((text.split(/\s+/)[1] || "") === "test") {
+      await offerReminder(env, chatId, lang);
+      return sendMessage(env, chatId, "👆 Preview (sent to you only). Real broadcast: /broadcast_reminders");
+    }
+    const res = await broadcastReminderOffer(env);
+    return sendMessage(env, chatId, `Reminder offer sent: ${res.delivered}/${res.attempted} delivered.`);
+  }
+
   if (text.startsWith("/start")) {
     await applyReferral(env, uid, text.split(/\s+/)[1] || "");
     if ((await getEntries(env, uid)).length) return showClaimCard(env, chatId, uid, false, lang);
@@ -209,6 +229,7 @@ async function handleCallback(env, cq) {
   const uid = String(cq.from.id);
   const data = cq.data;
   const chatId = cq.message?.chat?.id;
+  if (await handleReminderCallback(env, cq)) return;
   if (data === "pub" || data === "priv") {
     const u0 = await ensureUser(env, uid, fullNameOf(cq.from), cq.from.language_code);
     const lang = langOf(u0, cq.from);
@@ -217,10 +238,16 @@ async function handleCallback(env, cq) {
     const base = env.PUBLIC_BASE || "https://plank.today";
     await answerCallback(env, cq.id, t(lang, data === "pub" ? "cb_published" : "cb_saved"));
     await setStep(env, uid, "awaiting_photo");
-    return sendMessage(env, chatId, t(lang, "after_claim", {
+    await sendMessage(env, chatId, t(lang, "after_claim", {
       where: t(lang, data === "pub" ? "where_public" : "where_private"),
       url: `${base}/u/${u.slug}`, group: GROUP_INVITE,
     }));
+    // One-time gentle offer to enable daily reminders.
+    if (!u.reminder_offered) {
+      await offerReminder(env, chatId, lang);
+      await markReminderOffered(env, uid);
+    }
+    return;
   }
 }
 

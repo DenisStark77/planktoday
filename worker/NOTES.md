@@ -5,6 +5,31 @@ If you change any of the behaviour below, update this file too.
 
 ---
 
+## Daily reminders
+
+Timezone-aware "did you plank today?" nudges. Code: `src/reminders.js`; wired into
+`bot.js` (commands + callbacks + onboarding offer) and `index.js` `scheduled()`.
+
+- **Opt-in.** Offered once after onboarding (claim flow) and via a one-time
+  broadcast (`/broadcast_reminders`, admin-only). `users.reminder_offered` guards
+  against re-offering. Users can also run `/remind` anytime.
+- **Timezones = 4 coarse zones only** (London / New York / Moscow / Sydney →
+  `Europe/London`, `America/New_York`, `Europe/Moscow`, `Australia/Sydney`).
+  The zone **and** hour are on **one screen** (edited in place) so e.g. a Berlin
+  user picks "London" and shifts the hour to compensate. IANA zones → DST is
+  correct via `Intl`. (v2 idea: a Mini App that auto-detects the exact IANA zone.)
+- **Scheduling:** cron is hourly (`0 * * * *`). Each tick, `runReminderTick`
+  selects `reminder_on=1` users whose local hour (computed via `localParts`) ==
+  `reminder_hour`, who haven't been nudged today (`reminder_last`) and haven't
+  planked today. Nudge lands *within* the chosen local hour (exact minute varies
+  by the zone's UTC offset — e.g. India-style :30 zones aren't in the picker).
+- **Auto-pause after 12 days** of inactivity: one warm farewell, then
+  `reminder_on=0`. Blocked bot (send 403/400) also auto-disables.
+- **Columns** on `users`: `tz`, `reminder_on`, `reminder_hour`, `reminder_last`,
+  `reminder_offered`. Remember to `ALTER` **remote** D1 (local schema goes stale).
+
+---
+
 ## Accounts / identity
 
 Two "admin" env vars in `wrangler.toml` that are **easy to confuse**:

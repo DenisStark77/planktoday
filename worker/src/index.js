@@ -10,6 +10,7 @@
 import { handleUpdate } from "./bot.js";
 import { renderLeaderboard, renderProfile, notFound } from "./render.js";
 import { renderCard } from "./card.js";
+import { runReminderTick } from "./reminders.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -69,8 +70,13 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
-    // TODO: daily reminders + re-activation nudges. Stub keeps cron wired.
-    console.log("scheduled tick", event.cron);
+    // Hourly: timezone-aware daily reminders (see reminders.js). Sends only to
+    // users whose chosen local hour == now and who haven't planked today.
+    ctx.waitUntil(
+      runReminderTick(env)
+        .then((n) => console.log("reminder tick", event.cron, "sent", n))
+        .catch((e) => console.error("reminder tick error", e))
+    );
   },
 };
 

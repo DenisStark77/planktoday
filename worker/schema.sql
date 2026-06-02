@@ -16,6 +16,11 @@ CREATE TABLE IF NOT EXISTS users (
   referrer    TEXT,                    -- uid of the user who referred them (via ?start=u_<slug>)
   ref_source  TEXT,                    -- 'profile' | 'board' | 'site' | null
   lang        TEXT,                    -- preferred language code (from Telegram language_code)
+  tz          TEXT,                    -- IANA reminder zone (Europe/London|America/New_York|Europe/Moscow|Australia/Sydney)
+  reminder_on   INTEGER NOT NULL DEFAULT 0,  -- 1 => daily reminder enabled
+  reminder_hour INTEGER,               -- local hour 0-23 (in tz) to send the nudge
+  reminder_last TEXT,                  -- last local date (YYYY-MM-DD) a reminder was sent (dedupe)
+  reminder_offered INTEGER NOT NULL DEFAULT 0, -- 1 => the one-time reminder offer was sent
   created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

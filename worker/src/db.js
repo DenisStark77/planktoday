@@ -119,6 +119,38 @@ export async function setPhoto(env, uid, url) {
   await env.DB.prepare("UPDATE users SET photo_url=? WHERE uid=?").bind(url, String(uid)).run();
 }
 
+// --- reminders ---
+export async function setReminder(env, uid, tz, hour) {
+  await env.DB.prepare(
+    "UPDATE users SET tz=?, reminder_hour=?, reminder_on=1, reminder_last=NULL, reminder_offered=1 WHERE uid=?"
+  ).bind(tz, hour, String(uid)).run();
+}
+export async function disableReminder(env, uid) {
+  await env.DB.prepare("UPDATE users SET reminder_on=0 WHERE uid=?").bind(String(uid)).run();
+}
+export async function markReminderOffered(env, uid) {
+  await env.DB.prepare("UPDATE users SET reminder_offered=1 WHERE uid=?").bind(String(uid)).run();
+}
+export async function setReminderLast(env, uid, day) {
+  await env.DB.prepare("UPDATE users SET reminder_last=? WHERE uid=?").bind(day, String(uid)).run();
+}
+/** Enabled users + their latest entry (day, seconds), for the reminder tick. */
+export async function reminderCandidates(env) {
+  const r = await env.DB.prepare(
+    `SELECT u.uid, u.tz, u.reminder_hour, u.reminder_last, u.lang,
+            e.day AS last_day, e.seconds AS last_sec
+     FROM users u
+     LEFT JOIN entries e ON e.uid=u.uid AND e.day=(SELECT MAX(day) FROM entries WHERE uid=u.uid)
+     WHERE u.reminder_on=1 AND u.tz IS NOT NULL AND u.reminder_hour IS NOT NULL`
+  ).all();
+  return r.results || [];
+}
+/** Users not yet shown the one-time opt-in offer (for the broadcast). */
+export async function reminderOfferTargets(env) {
+  const r = await env.DB.prepare("SELECT uid, lang FROM users WHERE reminder_offered=0").all();
+  return r.results || [];
+}
+
 // --- metrics ---
 function daysBetween(a, b) {
   return Math.round((Date.parse(b) - Date.parse(a)) / 86400000);

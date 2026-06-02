@@ -19,6 +19,13 @@ export const sendMessage = (env, chatId, text, extra = {}) =>
 export const answerCallback = (env, id, text = "") =>
   tg(env, "answerCallbackQuery", { callback_query_id: id, text });
 
+/** Edit a message's text + inline keyboard in place (keeps the picker on one screen). */
+export const editMessageText = (env, chatId, messageId, text, extra = {}) =>
+  tg(env, "editMessageText", {
+    chat_id: chatId, message_id: messageId, text,
+    parse_mode: "HTML", disable_web_page_preview: true, ...extra,
+  });
+
 /** Resolve a Telegram file_id to a downloadable bytes Response. */
 export async function downloadFile(env, fileId) {
   const f = await tg(env, "getFile", { file_id: fileId });
