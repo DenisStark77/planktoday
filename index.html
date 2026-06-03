@@ -442,5 +442,22 @@
       const url=new URL(location.href); url.searchParams.set('lang',lang); history.replaceState({},'',url);
     });
   </script>
+  <script>
+  /* Referral persistence (mirror of worker/src/render.js head()): a shared
+   * profile link (/u/<slug>) is remembered first-touch and injected into the
+   * landing-page "Start" buttons, so the sharer is credited even when the visitor
+   * joins from here instead of the profile. */
+  (function(){try{
+    var KEY='pt_ref',TTL=2592000000;
+    function getRef(){try{var v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&v.ref&&(Date.now()-v.ts)<TTL)return v.ref;}catch(e){}return null;}
+    function setRef(r){try{localStorage.setItem(KEY,JSON.stringify({ref:r,ts:Date.now()}));}catch(e){}}
+    var qs=new URLSearchParams(location.search);
+    var p=location.pathname.split('/').filter(Boolean);
+    var incoming=(qs.get('ref')||((p[0]==='u'&&p[1])?p[1]:'')||'').toLowerCase();
+    if(incoming&&!getRef())setRef(incoming);
+    function rewrite(){var ref=getRef();if(!ref)return;document.querySelectorAll('a[href*="plank_today_bot?start="]').forEach(function(a){a.href=a.href.replace(/([?&]start=)[^&]*/,'$1u_'+ref);});}
+    if(document.readyState!=='loading')rewrite();else document.addEventListener('DOMContentLoaded',rewrite);
+  }catch(e){}})();
+  </script>
 </body>
 </html>

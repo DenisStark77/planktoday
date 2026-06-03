@@ -65,7 +65,25 @@ function head(title, desc, extraMeta = "") {
 <meta property="og:description" content="${esc(desc)}"/>
 <meta property="og:type" content="website"/>
 ${extraMeta}
-<style>${CSS}</style></head><body>`;
+<style>${CSS}</style>
+<script>
+/* Referral persistence: first profile that starts the session is remembered
+ * (localStorage, first-touch, 30d) and injected into every "Start" deep link,
+ * so a shared profile link credits its owner even if the visitor joins from the
+ * leaderboard or landing page. Same logic lives in the static index.html. */
+(function(){try{
+  var KEY='pt_ref',TTL=2592000000;
+  function getRef(){try{var v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&v.ref&&(Date.now()-v.ts)<TTL)return v.ref;}catch(e){}return null;}
+  function setRef(r){try{localStorage.setItem(KEY,JSON.stringify({ref:r,ts:Date.now()}));}catch(e){}}
+  var qs=new URLSearchParams(location.search);
+  var p=location.pathname.split('/').filter(Boolean);
+  var incoming=(qs.get('ref')||((p[0]==='u'&&p[1])?p[1]:'')||'').toLowerCase();
+  if(incoming&&!getRef())setRef(incoming);
+  function rewrite(){var ref=getRef();if(!ref)return;document.querySelectorAll('a[href*="plank_today_bot?start="]').forEach(function(a){a.href=a.href.replace(/([?&]start=)[^&]*/,'$1u_'+ref);});}
+  if(document.readyState!=='loading')rewrite();else document.addEventListener('DOMContentLoaded',rewrite);
+}catch(e){}})();
+</script>
+</head><body>`;
 }
 
 const PROJ_DAYS = 70; // forward horizon = one +1% doubling (the project's core promise)
