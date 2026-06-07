@@ -1,5 +1,7 @@
-/** Server-rendered profile + leaderboard HTML (live from D1). */
-import { fmt, pluralRu, getUserBySlug, getEntries, computeStats, listPublicWithStats } from "./db.js";
+/** Server-rendered profile + leaderboard HTML (live from D1), localized to the
+ * viewer's language (see web_i18n.js). */
+import { fmt, getUserBySlug, getEntries, computeStats, listPublicWithStats } from "./db.js";
+import { tw, daysWord, boardName, boardDesc } from "./web_i18n.js";
 
 const CSS = `
 :root{--bg:#0a0a0a;--fg:#f2f2f2;--muted:#9b9b9b;--line:#1f1f1f;--maxw:980px}
@@ -56,8 +58,9 @@ h1{font-size:clamp(30px,5vw,52px);font-weight:900;margin:.2em 0}
 const esc = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-function head(title, desc, extraMeta = "") {
-  return `<!DOCTYPE html><html lang="ru"><head>
+function head(title, desc, extraMeta = "", lang = "en") {
+  const dir = lang === "ar" ? ' dir="rtl"' : "";
+  return `<!DOCTYPE html><html lang="${lang}"${dir}><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}"/>
@@ -88,9 +91,9 @@ ${extraMeta}
 
 const PROJ_DAYS = 70; // forward horizon = one +1% doubling (the project's core promise)
 
-function svgChart(stats, w = 560, h = 440, pad = 30) {
+function svgChart(stats, lang = "en", w = 560, h = 440, pad = 30) {
   const series = stats.series;
-  if (series.length < 2) return "<p class='muted'>Недостаточно данных для графика</p>";
+  if (series.length < 2) return `<p class='muted'>${tw(lang, "chart_nodata")}</p>`;
   const d0 = Date.parse(series[0][0]);
   const pts = series.map(([d, s]) => [Math.round((Date.parse(d) - d0) / 86400000), s]);
   const todayX = pts[pts.length - 1][0];
@@ -113,21 +116,23 @@ function svgChart(stats, w = 560, h = 440, pad = 30) {
   const projPath = proj.map(([x, y]) => `${X(x).toFixed(1)},${Y(y).toFixed(1)}`).join(" ");
   const dots = pts.map(([x, y]) => `<circle cx="${X(x).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="2" fill="#f2f2f2"/>`).join("");
   const tx = X(todayX).toFixed(1);
-  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="chart" role="img" aria-label="Рост времени планки">
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="chart" role="img" aria-label="${tw(lang, "chart_aria")}">
 <line x1="${tx}" y1="${pad - 8}" x2="${tx}" y2="${h - pad}" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="2 3"/>
 <polyline fill="none" stroke="#3ddc84" stroke-width="2" stroke-dasharray="5 4" points="${projPath}"/>${dots}
 <circle cx="${tx}" cy="${Y(current).toFixed(1)}" r="3.4" fill="#3ddc84"/>
-<text x="${pad}" y="${h - 6}" fill="#8a8a8a" font-size="11">день 0</text>
-<text x="${tx}" y="${h - 6}" fill="#8a8a8a" font-size="11" text-anchor="middle">сегодня</text>
-<text x="${(w - pad).toFixed(1)}" y="${h - 6}" fill="#8a8a8a" font-size="11" text-anchor="end">+${PROJ_DAYS} дн.</text>
+<text x="${pad}" y="${h - 6}" fill="#8a8a8a" font-size="11">${tw(lang, "chart_day0")}</text>
+<text x="${tx}" y="${h - 6}" fill="#8a8a8a" font-size="11" text-anchor="middle">${tw(lang, "chart_today")}</text>
+<text x="${(w - pad).toFixed(1)}" y="${h - 6}" fill="#8a8a8a" font-size="11" text-anchor="end">${tw(lang, "chart_plus", { n: PROJ_DAYS })}</text>
 <text x="${(w - pad).toFixed(1)}" y="${(Y(projEnd) - 6).toFixed(1)}" fill="#3ddc84" font-size="12" text-anchor="end" font-weight="700">${fmt(projEnd)}</text>
 <text x="${pad - 6}" y="${(Y(ymax) + 10).toFixed(0)}" fill="#8a8a8a" font-size="11">${fmt(ymax)}</text></svg>`;
 }
 
-function shareLinks(env, slug, fname, st) {
+function shareLinks(env, slug, fname, st, lang = "en") {
   const base = env.PUBLIC_BASE || "https://plank.today";
   const url = `${base}/u/${slug}`;
-  const txt = `${fname}: планка ${fmt(st.start)} → ${fmt(st.peak)} (×${st.multiplier}). Маленький шаг каждый день. ${base}`;
+  const txt = tw(lang, "share_text", {
+    name: fname, start: fmt(st.start), peak: fmt(st.peak), mult: st.multiplier, base,
+  });
   const e = encodeURIComponent;
   return {
     url, txt,
@@ -137,29 +142,17 @@ function shareLinks(env, slug, fname, st) {
   };
 }
 
-// Leaderboards. metric/render take a `stats` object. Order = tab order.
+// Leaderboards. metric(stats) ranks; render(stats, lang) renders the value cell.
+// Names + descriptions are localized via boardName/boardDesc (web_i18n.js). Order
+// = tab order.
 const BOARDS = [
-  { key: "endurance", name: "Выносливость",
-    desc: "Способность продолжительное время преодолевать дискомфорт для достижения цели.",
-    metric: (s) => s.current, render: (s) => fmt(s.current) },
-  { key: "exp", name: "Экспонента",
-    desc: "Многократно вырасти можно, делая малые шаги каждый день.",
-    metric: (s) => s.multiplier || 0, render: (s) => `×${s.multiplier}` },
-  { key: "discipline", name: "Дисциплина",
-    desc: "Продолжать без пропусков несмотря ни на какие обстоятельства.",
-    metric: (s) => s.streak, render: (s) => `${s.streak} дн.` },
-  { key: "commitment", name: "Приверженность",
-    desc: "Результат от планки накапливается, даже если ты делаешь пропуски.",
-    metric: (s) => s.reports, render: (s) => `${s.reports}` },
-  { key: "comebacks", name: "Возвращения",
-    desc: "Начать заново после того, как бросил — редкая способность.",
-    metric: (s) => s.comebackCount, render: (s) => `${s.comebackCount}×` },
-  { key: "firststep", name: "Первый шаг",
-    desc: "Самое трудное — это первый раз встать в планку.",
-    metric: (s) => -(Date.now() - Date.parse(s.startDate)), render: (s) => s.startDate },
-  { key: "invites", name: "Приглашения",
-    desc: "Сколько практикующих ты привёл. Рост сообщества — общее дело.",
-    metric: (s) => s.invites || 0, render: (s) => `${s.invites || 0}` },
+  { key: "endurance", metric: (s) => s.current, render: (s) => fmt(s.current) },
+  { key: "exp", metric: (s) => s.multiplier || 0, render: (s) => `×${s.multiplier}` },
+  { key: "discipline", metric: (s) => s.streak, render: (s, lang) => `${s.streak} ${tw(lang, "days_short")}` },
+  { key: "commitment", metric: (s) => s.reports, render: (s) => `${s.reports}` },
+  { key: "comebacks", metric: (s) => s.comebackCount, render: (s) => `${s.comebackCount}×` },
+  { key: "firststep", metric: (s) => -(Date.now() - Date.parse(s.startDate)), render: (s) => s.startDate },
+  { key: "invites", metric: (s) => s.invites || 0, render: (s) => `${s.invites || 0}` },
 ];
 
 /** Rank a board (best first). The founder (site admin) steps off any board he
@@ -178,7 +171,7 @@ function rankBoard(board, rows, founderUid) {
 
 /** This user's RELATIVELY-best placements: the boards where they rank highest
  * compared to their own other ranks (best first) — shown even if it's #23. */
-async function rankBadges(env, uid) {
+async function rankBadges(env, uid, lang = "en") {
   const pop = await listPublicWithStats(env);
   const placements = [];
   for (const b of BOARDS) {
@@ -188,66 +181,71 @@ async function rankBadges(env, uid) {
   }
   placements.sort((a, c) => a.rank - c.rank);
   const items = placements.slice(0, 3).map(({ b, rank }) =>
-    `<a class="rankbadge" href="/board?cat=${b.key}"><b>#${rank}</b> ${b.name}</a>`).join("");
+    `<a class="rankbadge" href="/board?cat=${b.key}"><b>#${rank}</b> ${boardName(lang, b.key)}</a>`).join("");
   return items ? `<div class="badges">${items}</div>` : "";
 }
 
-export async function renderProfile(env, slug) {
+export async function renderProfile(env, slug, lang = "en") {
   const u = await getUserBySlug(env, slug);
   if (!u || !u.registered) return null;
   const st = computeStats(await getEntries(env, u.uid));
   if (!st) return null;
   const fname = u.first_name;
   const statusCls = st.active ? "active" : "paused";
-  const statusRu = st.active ? "практикует сейчас" : `пауза ${st.daysSince} дн.`;
-  const s = shareLinks(env, slug, fname, st);
+  const status = st.active ? tw(lang, "status_active") : tw(lang, "status_paused", { n: st.daysSince });
+  const s = shareLinks(env, slug, fname, st, lang);
   const og =
     `<meta property="og:image" content="${env.PUBLIC_BASE}/api/card/${esc(slug)}.png"/>` +
     `<meta property="og:image:width" content="1200"/>` +
     `<meta property="og:image:height" content="630"/>` +
     `<meta name="twitter:card" content="summary_large_image"/>`;
   const cbLine = st.comebackCount
-    ? `<div class="stat"><span class="muted">Возвращений</span><br><b>${st.comebackCount}</b></div>` : "";
+    ? `<div class="stat"><span class="muted">${tw(lang, "stat_comebacks")}</span><br><b>${st.comebackCount}</b></div>` : "";
   const avatar = u.photo_url
     ? (u.photo_url.endsWith(".mp4")
         ? `<video class="avatar" src="${esc(u.photo_url)}" autoplay loop muted playsinline></video> `
         : `<img class="avatar" src="${esc(u.photo_url)}" alt=""/> `)
     : "";
-  const badges = u.public ? await rankBadges(env, u.uid) : "";
-  return head(`${fname} — Планка +1%`, `${fmt(st.start)} → ${fmt(st.peak)}, ×${st.multiplier} за ${st.reports} ${pluralRu(st.reports, "день", "дня", "дней")}.`, og) + `
+  const badges = u.public ? await rankBadges(env, u.uid, lang) : "";
+  const title = `${fname} — ${tw(lang, "brand")}`;
+  const desc = tw(lang, "prof_meta", { start: fmt(st.start), peak: fmt(st.peak), mult: st.multiplier, days: daysWord(lang, st.reports) });
+  return head(title, desc, og, lang) + `
 <div class="container">
-  <div class="title-row"><a class="brand" href="/">PLANK +1%</a><span class="muted">/ профиль</span></div>
+  <div class="title-row"><a class="brand" href="/">PLANK +1%</a><span class="muted">${tw(lang, "profile_tag")}</span></div>
   <div class="hero">
     <div>
-      <div class="badge"><span class="dot ${statusCls}"></span> ${statusRu}</div>
+      <div class="badge"><span class="dot ${statusCls}"></span> ${status}</div>
       <h1 style="margin-top:14px;display:flex;align-items:center;gap:14px">${avatar}${esc(fname)}</h1>
-      <div class="muted">сейчас держит</div>
+      <div class="muted">${tw(lang, "holding_now")}</div>
       <div class="bignum mono">${fmt(st.current)}</div>
       <div class="statline">
-        <div class="stat"><span class="muted">Старт</span><br><b class="mono">${fmt(st.start)}</b></div>
-        <div class="stat"><span class="muted">Рост</span><br><b>×${st.multiplier}</b></div>
-        <div class="stat"><span class="muted">Дней практики</span><br><b>${st.reports}</b></div>
-        <div class="stat"><span class="muted">Лучшая серия</span><br><b>${st.streak}</b></div>
+        <div class="stat"><span class="muted">${tw(lang, "stat_start")}</span><br><b class="mono">${fmt(st.start)}</b></div>
+        <div class="stat"><span class="muted">${tw(lang, "stat_growth")}</span><br><b>×${st.multiplier}</b></div>
+        <div class="stat"><span class="muted">${tw(lang, "stat_days")}</span><br><b>${st.reports}</b></div>
+        <div class="stat"><span class="muted">${tw(lang, "stat_streak")}</span><br><b>${st.streak}</b></div>
         ${cbLine}
       </div>
       ${badges}
       <div class="cta-row">
-        <a class="btn start" href="https://t.me/plank_today_bot?start=u_${esc(slug)}" target="_blank" rel="noopener">Начать свою планку →</a>
-        <button class="btn" type="button" onclick="psShare()">Поделиться</button>
+        <a class="btn start" href="https://t.me/plank_today_bot?start=u_${esc(slug)}" target="_blank" rel="noopener">${tw(lang, "cta_start")}</a>
+        <button class="btn" type="button" onclick="psShare()">${tw(lang, "btn_share")}</button>
         <a class="btn icon" href="${s.tg}" target="_blank" rel="noopener" aria-label="Telegram" title="Telegram"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg></a>
-        <button class="btn icon" type="button" onclick="psShareImg()" aria-label="Instagram" title="Поделиться картинкой (Instagram, Stories)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></button>
-        <button class="btn icon" type="button" onclick="psCopy()" aria-label="Скопировать ссылку" title="Скопировать ссылку"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        <button class="btn icon" type="button" onclick="psShareImg()" aria-label="Instagram" title="${esc(tw(lang, "title_ig"))}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></button>
+        <button class="btn icon" type="button" onclick="psCopy()" aria-label="${esc(tw(lang, "title_copy"))}" title="${esc(tw(lang, "title_copy"))}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
       </div>
       <script>
 const PS_URL = ${JSON.stringify(s.url)};
 const PS_TEXT = ${JSON.stringify(s.txt)};
 const PS_CARD = ${JSON.stringify(s.card)};
 const PS_STORY = ${JSON.stringify(s.story)};
+const PS_TITLE = ${JSON.stringify(tw(lang, "brand"))};
+const PS_T_COPIED = ${JSON.stringify(tw(lang, "toast_copied"))};
+const PS_T_IMG = ${JSON.stringify(tw(lang, "toast_img"))};
 async function psShare(){
   // Native OS share sheet where supported (Safari, Chrome on most platforms).
   // Must be called directly on the tap so the user-activation is intact.
   if (navigator.share){
-    try { await navigator.share({ title: "Планка +1%", text: PS_TEXT, url: PS_URL }); return; }
+    try { await navigator.share({ title: PS_TITLE, text: PS_TEXT, url: PS_URL }); return; }
     catch (e) { if (e && e.name === "AbortError") return; }
   }
   // No Web Share API (some desktop browsers / in-app webviews): copy the link.
@@ -264,23 +262,23 @@ async function psShareImg(){
     const blob = await resp.blob();
     const file = new File([blob], "plank.png", { type: blob.type || "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })){
-      try { await navigator.share({ files: [file], title: "Планка +1%" }); return; }
+      try { await navigator.share({ files: [file], title: PS_TITLE }); return; }
       catch (e) { if (e && e.name === "AbortError") return; throw e; }
     }
     // Desktop / no file-share support: open the image so the user can save it.
     window.open(PS_STORY, "_blank", "noopener");
-    psToast("Картинка открыта — сохрани и выложи в Stories");
+    psToast(PS_T_IMG);
   } catch (e) {
     window.open(PS_STORY, "_blank", "noopener");
   }
 }
 async function psCopy(){
-  try { await navigator.clipboard.writeText(PS_URL); psToast("Ссылка скопирована"); return; }
+  try { await navigator.clipboard.writeText(PS_URL); psToast(PS_T_COPIED); return; }
   catch (e) {}
   const t = document.createElement('textarea');
   t.value = PS_URL; t.style.position='fixed'; t.style.opacity='0';
   document.body.appendChild(t); t.select();
-  try { document.execCommand('copy'); psToast("Ссылка скопирована"); } catch (e) {}
+  try { document.execCommand('copy'); psToast(PS_T_COPIED); } catch (e) {}
   document.body.removeChild(t);
 }
 function psToast(msg){
@@ -292,15 +290,15 @@ function psToast(msg){
 </script>
     </div>
     <div class="card chartcard">
-      <h2 style="margin-top:0;font-size:18px">Рост по дням</h2>
-      ${svgChart(st)}
-      <p class="muted" style="font-size:13px;margin-bottom:0">⬤ твой путь · <span style="color:#3ddc84">▱ прогноз +1%/день на 70 дней вперёд</span></p>
+      <h2 style="margin-top:0;font-size:18px">${tw(lang, "chart_title")}</h2>
+      ${svgChart(st, lang)}
+      <p class="muted" style="font-size:13px;margin-bottom:0">⬤ ${tw(lang, "legend_path")} · <span style="color:#3ddc84">▱ ${tw(lang, "legend_proj")}</span></p>
     </div>
   </div>
 </div></body></html>`;
 }
 
-export async function renderLeaderboard(env, activeCat) {
+export async function renderLeaderboard(env, activeCat, lang = "en") {
   const rows = await listPublicWithStats(env);
   const active = BOARDS.some((b) => b.key === activeCat) ? activeCat : BOARDS[0].key;
   const vis = (k) => (k === active ? "block" : "none");
@@ -311,28 +309,32 @@ export async function renderLeaderboard(env, activeCat) {
       const stt = x.stats.active ? "active" : "paused";
       return `<li><span class="rank">${i + 1}</span><span class="dot ${stt}"></span>` +
         `<a class="nm" href="/u/${esc(x.user.slug)}">${esc(x.user.first_name)}</a>` +
-        `<span class="val mono">${b.render(x.stats)}</span></li>`;
+        `<span class="val mono">${b.render(x.stats, lang)}</span></li>`;
     }).join("");
-    return `<ul class="lb" data-cat="${b.key}" style="display:${vis(b.key)}">${items || '<li class="muted">Пока никого нет</li>'}</ul>`;
+    return `<ul class="lb" data-cat="${b.key}" style="display:${vis(b.key)}">${items || `<li class="muted">${tw(lang, "lb_empty_list")}</li>`}</ul>`;
   }).join("");
   const descs = BOARDS.map((b) =>
-    `<p class="board-desc" data-cat="${b.key}" style="display:${vis(b.key)}">${b.desc}</p>`).join("");
+    `<p class="board-desc" data-cat="${b.key}" style="display:${vis(b.key)}">${boardDesc(lang, b.key)}</p>`).join("");
   const tabs = BOARDS.map((b) =>
-    `<button class="tab ${b.key === active ? "on" : ""}" data-cat="${b.key}">${b.name}</button>`).join("");
+    `<button class="tab ${b.key === active ? "on" : ""}" data-cat="${b.key}">${boardName(lang, b.key)}</button>`).join("");
 
   const nActive = rows.filter((x) => x.stats.active).length;
-  const empty = rows.length ? "" : `<p class="muted">Пока никто не зарегистрировался. Откройте бота @plank_today_bot и нажмите «Опубликовать».</p>`;
-  return head("Планка +1% — Рейтинг участников", "Реальные результаты практикующих планку +1% каждый день.") + `
+  const empty = rows.length ? "" : `<p class="muted">${tw(lang, "lb_empty_all")}</p>`;
+  const summary = tw(lang, "lb_summary", {
+    n: rows.length, a: nActive, p: rows.length - nActive,
+    dot_a: '<span class="dot active"></span>', dot_p: '<span class="dot paused"></span>',
+  });
+  return head(`${tw(lang, "brand")} — ${tw(lang, "lb_h1")}`, tw(lang, "lb_desc"), "", lang) + `
 <div class="container">
   <a class="brand" href="/">PLANK +1%</a>
-  <h1>Рейтинг участников</h1>
-  <p class="muted">${rows.length} в рейтинге · <span class="dot active"></span> ${nActive} активны · <span class="dot paused"></span> ${rows.length - nActive} на паузе</p>
-  <div class="cta-row" style="margin:14px 0"><a class="btn start" href="https://t.me/plank_today_bot?start=board" target="_blank" rel="noopener">Начать свою планку →</a></div>
+  <h1>${tw(lang, "lb_h1")}</h1>
+  <p class="muted">${summary}</p>
+  <div class="cta-row" style="margin:14px 0"><a class="btn start" href="https://t.me/plank_today_bot?start=board" target="_blank" rel="noopener">${tw(lang, "cta_start")}</a></div>
   ${empty}
   <div class="tabs">${tabs}</div>
   ${descs}
   ${lists}
-  <p class="muted" style="margin-top:24px;font-size:13px"><a href="/">← о методологии «Планка +1%»</a></p>
+  <p class="muted" style="margin-top:24px;font-size:13px"><a href="/">${tw(lang, "methodology")}</a></p>
 </div>
 <script>
 function showCat(c){
@@ -344,8 +346,8 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>show
 </script></body></html>`;
 }
 
-export function notFound() {
-  return head("Не найдено — Планка +1%", "Страница не найдена") +
-    `<div class="container"><a class="brand" href="/">PLANK +1%</a><h1>Не найдено</h1>
-     <p class="muted">Эта страница не существует или участник ещё не зарегистрировался.</p></div></body></html>`;
+export function notFound(lang = "en") {
+  return head(tw(lang, "nf_title"), tw(lang, "nf_body"), "", lang) +
+    `<div class="container"><a class="brand" href="/">PLANK +1%</a><h1>${tw(lang, "nf_h1")}</h1>
+     <p class="muted">${tw(lang, "nf_body")}</p></div></body></html>`;
 }

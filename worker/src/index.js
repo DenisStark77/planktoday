@@ -11,6 +11,7 @@ import { handleUpdate } from "./bot.js";
 import { renderLeaderboard, renderProfile, notFound } from "./render.js";
 import { renderCard } from "./card.js";
 import { runReminderTick } from "./reminders.js";
+import { pickLang } from "./web_i18n.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -52,17 +53,19 @@ export default {
         return new Response(obj.body, { headers });
       }
 
+      const lang = pickLang(request.headers.get("accept-language"));
+
       if (pathname === "/board" || pathname === "/board/" || pathname === "/" || pathname === "/index.html") {
-        return html(await renderLeaderboard(env, url.searchParams.get("cat")));
+        return html(await renderLeaderboard(env, url.searchParams.get("cat"), lang));
       }
 
       const m = pathname.match(/^\/u\/([a-z0-9-]+)\/?$/i);
       if (m) {
-        const page = await renderProfile(env, m[1]);
-        return page ? html(page) : html(notFound(), 404);
+        const page = await renderProfile(env, m[1], lang);
+        return page ? html(page) : html(notFound(lang), 404);
       }
 
-      return html(notFound(), 404);
+      return html(notFound(lang), 404);
     } catch (err) {
       console.error("fetch error", err);
       return new Response("internal error", { status: 500 });
