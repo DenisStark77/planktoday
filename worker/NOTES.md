@@ -30,13 +30,38 @@ Timezone-aware "did you plank today?" nudges. Code: `src/reminders.js`; wired in
 
 ---
 
+## Report parsing (generic, + LLM fallback)
+
+`src/parser.js` → `extractReport(text)` is now **generic for everyone** — the old
+per-user strict/lenient split is gone (the `strict` arg is ignored; `users.strict`
+is vestigial). A line is a report if, after stripping lead-ins (emoji, dates,
+"сегодня"/"планка", verbs like "держал"), it STARTS with a duration and then:
+a colon time (M:SS) — strong signal, accepted even with trailing commentary;
+or a non-sentence remainder (emoji/punct/units); or a trailing period/marker;
+or the line ends in a checkmark. No ✔️ required. Discussion never starts with a
+bare time, so it's rejected. Validated against the full group export.
+
+- **LLM fallback** (`src/aiparse.js` → `aiClassifyReport`) runs in `bot.js` ONLY
+  when the algorithm returns null AND `hasTimeToken(text)` AND the message is
+  short — judges report-vs-chatter via Workers AI for the messy leftovers. Clean
+  reports never hit the LLM.
+- **History was re-parsed** from `~/Downloads/ChatExport_2026-05-28/result.json`
+  with this parser and written as **`source='reparse'`** (replaced the old
+  `source='backfill'`). Tools `tools/parser.py` + `make_seed.py` are SUPERSEDED
+  (they had a destructive outlier guard that silently dropped legit spikes like
+  Denis's 16 Sep "10 минут"). Undo a re-import: `DELETE ... WHERE source='reparse'`.
+- Old deleted account `user419686805` (Denis, pre Telegram-reset) is merged into
+  `8607657267` via the same remap make_seed used.
+
+---
+
 ## Accounts / identity
 
 Two "admin" env vars in `wrangler.toml` that are **easy to confuse**:
 
 | Var | uid | Who | Role |
 |---|---|---|---|
-| `ADMIN_UID` | `8607657267` | **Denis** (@denisstark77, slug `denis`) | Site owner / founder. Personal plank account. `strict=1` parser. |
+| `ADMIN_UID` | `8607657267` | **Denis** (@denisstark77, slug `denis`) | Site owner / founder. Personal plank account. (`strict=1` flag now vestigial — parser is generic.) |
 | `ANON_ADMIN_UID` | `969418040` | **Jane** (@JaneStarck, "Женя") | Telegram **group** admin. |
 
 - `ADMIN_UID` is the *website* owner, **not** the group admin. Naming trap: "admin"
@@ -73,8 +98,8 @@ Removing the founder renumbers everyone else, so ranks stay 1,2,3…
 ## Denis's pre-group history (backfill)
 
 Reconstructed from anchor points in his TG blog and written as `entries` rows with
-**`source='pregroup'`**. (NB: his *group-era* rows were already tagged
-`source='backfill'`, so the pre-group rows use a distinct tag to stay separable.)
+**`source='pregroup'`**. (His *group-era* rows are `source='reparse'` — see "Report
+parsing" — so the pre-group blog reconstruction stays separable from both.)
 
 - **Range:** `2023-06-13` (1:30 / 90s) → `2024-05-17` (30:00 / 1800s), 340
   consecutive daily entries. Then a pause until the group started (≈2025-01).
