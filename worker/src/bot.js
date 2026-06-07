@@ -109,6 +109,12 @@ async function handleGroup(env, msg) {
   const text = msg.text || msg.caption || "";
   if (!text) return;
 
+  // A forwarded message is NOT the forwarder's own report — ignore it, so relaying
+  // another member's result never credits the wrong person. (Re-attributing to the
+  // original author is unreliable: the source may be hidden or untracked.)
+  if (msg.forward_origin || msg.forward_date || msg.forward_from ||
+      msg.forward_from_chat || msg.forward_sender_name) return;
+
   // Resolve the author. Anonymous admins post AS the group (sender_chat === chat)
   // and Telegram hides which admin it was — attribute such posts to a configured
   // fallback admin (env.ANON_ADMIN_UID), e.g. an admin who can't disable anonymity.

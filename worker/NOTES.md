@@ -52,6 +52,12 @@ bare time, so it's rejected. Validated against the full group export.
   Denis's 16 Sep "10 минут"). Undo a re-import: `DELETE ... WHERE source='reparse'`.
 - Old deleted account `user419686805` (Denis, pre Telegram-reset) is merged into
   `8607657267` via the same remap make_seed used.
+- **Forwarded messages:** the live bot (`handleGroup`) IGNORES forwards
+  (`forward_origin`/`forward_date`/…) — a relayed report must not credit the
+  forwarder. In the historical re-parse, forwarded reports were re-attributed to
+  `forwarded_from_id` (or matched by `forwarded_from` name) when that's a known
+  member, else dropped (channels/non-members). This recovered e.g. Юлия's, Ivan's
+  and Elena's true first-times that Denis had forwarded on their behalf.
 
 ---
 
