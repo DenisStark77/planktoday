@@ -30,6 +30,29 @@ Timezone-aware "did you plank today?" nudges. Code: `src/reminders.js`; wired in
 
 ---
 
+## Web localization (profile + leaderboard)
+
+`/u/<slug>` and `/board` are localized to the **viewer's** language (ru/en/es/ar),
+detected from the `Accept-Language` header in `index.js` (`pickLang`), defaulting
+to **English**. Arabic renders with `dir="rtl"`.
+
+- Strings + the 7 board names/descriptions live in `src/web_i18n.js` (`tw()`,
+  `boardName`/`boardDesc`, `daysWord`). `render.js` threads `lang` through every
+  function. The bot has its own `i18n.js` (owner language); these are separate.
+- The static landing page (`index.html`, GitHub Pages) has its own data-i18n.
+- NB: share **card images** (`card.js`) are still Russian-only — localize there
+  too if needed.
+
+## Share button (web)
+
+`psShare()` uses the Web Share API when available (native sheet), else copies the
+link. Do NOT make it redirect to Telegram on missing Web Share — that hijacks the
+generic Share button (regressed once, see git `ade3dc4`→`c8992bc`). In-app
+browsers (Telegram iOS) lack `navigator.share`, so it copies there; the dedicated
+Telegram / Instagram / Copy icon buttons cover targeted sharing.
+
+---
+
 ## Report parsing (generic, + LLM fallback)
 
 `src/parser.js` → `extractReport(text)` is now **generic for everyone** — the old
