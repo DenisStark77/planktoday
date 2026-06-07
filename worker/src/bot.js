@@ -1,5 +1,6 @@
 /** Telegram update handling: group report parsing + DM claim/onboarding flow. */
-import { extractReport } from "./parser.js";
+import { extractReport, hasTimeToken } from "./parser.js";
+import { aiClassifyReport } from "./aiparse.js";
 import { sendMessage, answerCallback, downloadFile } from "./telegram.js";
 import {
   ensureUser, getUserByUid, getUserBySlug, getEntries, upsertEntry, registerUser, setPhoto,
@@ -123,8 +124,13 @@ async function handleGroup(env, msg) {
   }
   const uid = user.uid;
 
-  const sec = extractReport(text, !!user.strict);
-  if (sec == null) return;                       // not a report -> ignore silently
+  let sec = extractReport(text, !!user.strict);
+  // Ambiguous: algorithm found no clean report, but a time token IS present and
+  // the message is short. Ask the LLM to judge report-vs-chatter (rare path).
+  if (sec == null && env.AI && text.length <= 300 && hasTimeToken(text)) {
+    sec = await aiClassifyReport(env, text);
+  }
+  if (sec == null) return;                        // not a report -> ignore silently
   const day = dayFromUnix(msg.date);
 
   // capture previous report date BEFORE inserting, to detect a long-pause return
