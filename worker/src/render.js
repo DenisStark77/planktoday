@@ -243,11 +243,18 @@ const PS_URL = ${JSON.stringify(s.url)};
 const PS_TEXT = ${JSON.stringify(s.txt)};
 const PS_CARD = ${JSON.stringify(s.card)};
 const PS_STORY = ${JSON.stringify(s.story)};
+const PS_TG = ${JSON.stringify(s.tg)};
 async function psShare(){
+  // Native share sheet — works in Safari/Chrome. Called directly on the tap so
+  // the user-activation is intact.
   if (navigator.share){
     try { await navigator.share({ title: "Планка +1%", text: PS_TEXT, url: PS_URL }); return; }
     catch (e) { if (e && e.name === "AbortError") return; }
   }
+  // No Web Share API — common in in-app browsers (e.g. Telegram's on iOS). Open
+  // Telegram's "Share to…" picker so the user still gets a recipient chooser
+  // instead of a silent copy.
+  try { window.location.href = PS_TG; return; } catch (e) {}
   psCopy();
 }
 // Shares the card as an IMAGE FILE. Sharing a file (not a link) is what lets
