@@ -17,6 +17,8 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const { pathname } = url;
+    // Viewer language: explicit ?lang= (used by card URLs) else Accept-Language, else English.
+    const lang = pickLang(url.searchParams.get("lang") || request.headers.get("accept-language"));
 
     try {
       if (pathname === "/api/health") {
@@ -37,9 +39,9 @@ export default {
 
       // dynamic share cards: .png = OG (1200x630), .story.png = portrait (1080x1920)
       const story = pathname.match(/^\/api\/card\/([a-z0-9-]+)\.story\.png$/i);
-      if (story) return renderCard(env, story[1], "story");
+      if (story) return renderCard(env, story[1], "story", lang);
       const card = pathname.match(/^\/api\/card\/([a-z0-9-]+)\.png$/i);
-      if (card) return renderCard(env, card[1]);
+      if (card) return renderCard(env, card[1], "og", lang);
 
       // serve uploaded media from R2
       const mm = pathname.match(/^\/api\/media\/(.+)$/);
@@ -52,8 +54,6 @@ export default {
         headers.set("cache-control", "public, max-age=86400");
         return new Response(obj.body, { headers });
       }
-
-      const lang = pickLang(request.headers.get("accept-language"));
 
       if (pathname === "/board" || pathname === "/board/" || pathname === "/" || pathname === "/index.html") {
         return html(await renderLeaderboard(env, url.searchParams.get("cat"), lang));

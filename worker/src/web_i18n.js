@@ -64,6 +64,8 @@ const WSTR = {
     nf_title: "Не найдено — Планка +1%",
     nf_h1: "Не найдено",
     nf_body: "Эта страница не существует или участник ещё не зарегистрировался.",
+    card_subtitle: "сейчас держит планку",
+    card_tagline: "plank.today · маленький шаг каждый день",
   },
   en: {
     brand: "Plank +1%",
@@ -102,6 +104,8 @@ const WSTR = {
     nf_title: "Not found — Plank +1%",
     nf_h1: "Not found",
     nf_body: "This page doesn't exist or the member hasn't registered yet.",
+    card_subtitle: "holding the plank now",
+    card_tagline: "plank.today · a small step every day",
   },
   es: {
     brand: "Plancha +1%",
@@ -140,6 +144,8 @@ const WSTR = {
     nf_title: "No encontrado — Plancha +1%",
     nf_h1: "No encontrado",
     nf_body: "Esta página no existe o el miembro aún no se ha registrado.",
+    card_subtitle: "aguantando la plancha",
+    card_tagline: "plank.today · un pequeño paso cada día",
   },
   ar: {
     brand: "بلانك +1%",
@@ -178,6 +184,8 @@ const WSTR = {
     nf_title: "غير موجود — بلانك +1%",
     nf_h1: "غير موجود",
     nf_body: "هذه الصفحة غير موجودة أو لم يسجّل العضو بعد.",
+    card_subtitle: "يثبت البلانك الآن",
+    card_tagline: "plank.today · خطوة صغيرة كل يوم",
   },
 };
 

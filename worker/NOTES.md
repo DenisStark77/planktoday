@@ -40,8 +40,12 @@ to **English**. Arabic renders with `dir="rtl"`.
   `boardName`/`boardDesc`, `daysWord`). `render.js` threads `lang` through every
   function. The bot has its own `i18n.js` (owner language); these are separate.
 - The static landing page (`index.html`, GitHub Pages) has its own data-i18n.
-- NB: share **card images** (`card.js`) are still Russian-only — localize there
-  too if needed.
+- **Card images** (`card.js`) are localized too, via a `?lang=` query param that
+  the profile threads into `og:image` and the IG share URLs (default English).
+  **Arabic caveat:** the bundled Inter font has no Arabic glyphs, so the Arabic
+  card falls back to English text (`cl = lang==='ar' ? 'en' : lang`) to avoid tofu.
+  To do Arabic cards properly, bundle an Arabic font (e.g. Noto Sans Arabic) and
+  pass both fonts to `ImageResponse`.
 
 ## Share button (web)
 

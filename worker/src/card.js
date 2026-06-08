@@ -7,7 +7,8 @@
  */
 import { ImageResponse } from "workers-og";
 import fontData from "../assets/font.ttf";
-import { getUserBySlug, getEntries, computeStats, fmt, pluralRu } from "./db.js";
+import { getUserBySlug, getEntries, computeStats, fmt } from "./db.js";
+import { tw, daysWord } from "./web_i18n.js";
 
 const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
@@ -18,7 +19,7 @@ const VARIANTS = {
   story: { width: 1080, height: 1920, pad: 96,  bar: 96,  logo: 44, name: 84, sub: 46, big: 300, meta: 46, tag: 36 },
 };
 
-function cardHtml(v, { name, cur, meta }) {
+function cardHtml(v, { name, sub, cur, meta, tag }) {
   return `
   <div style="display:flex;flex-direction:column;width:${v.width}px;height:${v.height}px;background:#faf7f0;color:#15110a;padding:${v.pad}px;font-family:Inter;justify-content:space-between;">
     <div style="display:flex;align-items:center;">
@@ -27,18 +28,21 @@ function cardHtml(v, { name, cur, meta }) {
     </div>
     <div style="display:flex;flex-direction:column;">
       <div style="display:flex;font-size:${v.name}px;color:#3a352c;">${name}</div>
-      <div style="display:flex;font-size:${v.sub}px;color:#8a8276;margin-top:8px;">сейчас держит планку</div>
+      <div style="display:flex;font-size:${v.sub}px;color:#8a8276;margin-top:8px;">${esc(sub)}</div>
       <div style="display:flex;font-size:${v.big}px;line-height:1;font-weight:700;">${cur}</div>
     </div>
     <div style="display:flex;flex-direction:column;">
       <div style="display:flex;font-size:${v.meta}px;color:#15a34a;">${esc(meta)}</div>
-      <div style="display:flex;font-size:${v.tag}px;color:#8a8276;margin-top:18px;">plank.today · маленький шаг каждый день</div>
+      <div style="display:flex;font-size:${v.tag}px;color:#8a8276;margin-top:18px;">${esc(tag)}</div>
     </div>
   </div>`;
 }
 
-export async function renderCard(env, slug, variant = "og") {
+export async function renderCard(env, slug, variant = "og", lang = "en") {
   const v = VARIANTS[variant] || VARIANTS.og;
+  // The bundled Inter font has no Arabic glyphs — render the Arabic card in
+  // English to avoid tofu boxes (the HTML profile stays Arabic/RTL).
+  const cl = lang === "ar" ? "en" : lang;
   const u = await getUserBySlug(env, slug);
   if (!u || !u.registered) return new Response("not found", { status: 404 });
   const st = computeStats(await getEntries(env, u.uid));
@@ -46,8 +50,10 @@ export async function renderCard(env, slug, variant = "og") {
 
   const data = {
     name: esc(u.first_name),
+    sub: tw(cl, "card_subtitle"),
     cur: fmt(st.current),
-    meta: `${fmt(st.start)} → ${fmt(st.peak)} · ×${st.multiplier} · ${st.reports} ${pluralRu(st.reports, "день", "дня", "дней")}`,
+    meta: `${fmt(st.start)} → ${fmt(st.peak)} · ×${st.multiplier} · ${daysWord(cl, st.reports)}`,
+    tag: tw(cl, "card_tagline"),
   };
 
   const img = new ImageResponse(cardHtml(v, data), {

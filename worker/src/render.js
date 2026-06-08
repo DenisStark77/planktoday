@@ -136,8 +136,8 @@ function shareLinks(env, slug, fname, st, lang = "en") {
   const e = encodeURIComponent;
   return {
     url, txt,
-    card: `${base}/api/card/${slug}.png`,
-    story: `${base}/api/card/${slug}.story.png`,
+    card: `${base}/api/card/${slug}.png?lang=${lang}`,
+    story: `${base}/api/card/${slug}.story.png?lang=${lang}`,
     tg: `https://t.me/share/url?url=${e(url)}&text=${e(txt)}`,
   };
 }
@@ -195,7 +195,7 @@ export async function renderProfile(env, slug, lang = "en") {
   const status = st.active ? tw(lang, "status_active") : tw(lang, "status_paused", { n: st.daysSince });
   const s = shareLinks(env, slug, fname, st, lang);
   const og =
-    `<meta property="og:image" content="${env.PUBLIC_BASE}/api/card/${esc(slug)}.png"/>` +
+    `<meta property="og:image" content="${env.PUBLIC_BASE}/api/card/${esc(slug)}.png?lang=${lang}"/>` +
     `<meta property="og:image:width" content="1200"/>` +
     `<meta property="og:image:height" content="630"/>` +
     `<meta name="twitter:card" content="summary_large_image"/>`;
